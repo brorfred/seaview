@@ -31,6 +31,7 @@ fsspec = ">=2025.12.0,<2026"
 dynaconf = ">=3.2.12,<4"
 copernicusmarine = ">=2.2.5,<3"
 folium = ">=0.20.0,<0.21"
+tqdm = ">=4.67.1,<5"
 
 [pypi-dependencies]
 processor = { path = ".", editable = true }
