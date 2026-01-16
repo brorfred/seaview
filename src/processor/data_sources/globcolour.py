@@ -18,8 +18,9 @@ import copernicusmarine
 from satpy import Scene
 
 from processor.area_definitions import rectlinear as rectlin_area
-from processor import config, DateInFutureError
-settings = config.settings()
+from processor import config
+# , DateInFutureError
+settings = config.settings
 #settings = config.settings.from_env("modis_a")
 
 DATADIR = pathlib.Path(settings["data_dir"] + "/copernicus/GlobColour")

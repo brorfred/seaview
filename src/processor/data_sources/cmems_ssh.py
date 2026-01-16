@@ -20,13 +20,13 @@ from satpy import Scene
 #from satpy.dataset import DataID, Dataset  #0.59
 
 #os.environ["SATPY_CONFIG_PATH"] =
-from ..readers import copernicus_ssh
-satpy.readers.copernicus_ssh = copernicus_ssh
-satpy.config.set(config_path=[str(pathlib.Path(__file__).parent)+"/",])
+#from ..readers import copernicus_ssh
+#satpy.readers.copernicus_ssh = copernicus_ssh
+#satpy.config.set(config_path=[str(pathlib.Path(__file__).parent)+"/",])
 
 from ..area_definitions import rectlinear as rectlin_area
 from .. import config
-settings = config.settings()
+settings = config.settings
 #settings = config.settings.from_env("modis_a")
 
 DATADIR = pathlib.Path(settings["data_dir"] + "/copernicus/SSH")

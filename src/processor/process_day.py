@@ -7,10 +7,19 @@ import sysrsync
 from .tilers import rectlinear as rectlin_tiler
 from .data_sources import cmems_ssh, ostia, globcolour
 from . import config
-settings = config.settings()
+settings = config.settings
 from copernicusmarine import CoordinatesOutOfDatasetBounds
 
-def tile_ssh(dtm, verbose=True):
+def tiles_exists(id, dtm):
+    dtm = str(pd.to_datetime(dtm).date())
+    tilepath = pathlib.Path(settings["tile_dir"]) / id / dtm
+    return tilepath.is_dir()
+
+
+
+def tile_ssh(dtm, verbose=True, force=True):
+    if tiles_exists("ssh", dtm) and not force:
+        return
     rectlin_tiler.VERBOSE = verbose
     dtm = pd.to_datetime(dtm, utc=True)
     try:
@@ -36,7 +45,9 @@ def tile_ssh(dtm, verbose=True):
                              vmin=-0.75,
                              vmax=0.75)
 
-def tile_sst(dtm, verbose=True):
+def tile_sst(dtm, verbose=True, force=True):
+    if tiles_exists("ostia", dtm) and not force:
+        return
     rectlin_tiler.VERBOSE = verbose
     dtm = pd.to_datetime(dtm, utc=True)
     try:
@@ -62,7 +73,9 @@ def tile_sst(dtm, verbose=True):
                              vmin=10,
                              vmax=28)
 
-def tile_globcolour(dtm, verbose=True):
+def tile_globcolour(dtm, verbose=True, force=True):
+    if tiles_exists("globcolour", dtm) and not force:
+        return
     rectlin_tiler.VERBOSE = verbose
     dtm = pd.to_datetime(dtm, utc=True)
     try:
@@ -89,13 +102,14 @@ def tile_globcolour(dtm, verbose=True):
                              vmax=4.6,
                              levels=50)
 
+
 def all(dtm, verbose=False):
     print("Process SSH tiles")
-    tile_ssh(dtm, verbose=verbose)
+    tile_ssh(dtm, verbose=verbose, force=False)
     print("Process SST tiles")
-    tile_sst(dtm, verbose=verbose)
+    tile_sst(dtm, verbose=verbose, force=False)
     print("Process globcolour tiles")
-    tile_globcolour(dtm, verbose=verbose)
+    tile_globcolour(dtm, verbose=verbose, force=False)
 
 def sync():
     local_tiledir = settings["tile_dir"]

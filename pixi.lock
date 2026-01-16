@@ -3798,7 +3798,36 @@ packages:
 - pypi: .
   name: processor
   version: 0.1.0
-  sha256: 7d2eb6a828462974b9643d03b48ad168d81ee4850011a14a5c8a576ba212024e
+  sha256: 6234f2ad0e3ba7577561cc7051c6a91489a49ee6d91decfacabd90e52d806124
+  requires_dist:
+  - numpy>=1.24.0
+  - scipy>=1.10.0
+  - xarray>=2023.1.0
+  - pandas>=2.0.0
+  - matplotlib>=3.7.0
+  - pillow>=9.0.0
+  - mercantile>=1.2.0
+  - netcdf4>=1.6.0
+  - satpy>=0.45.0
+  - pyresample>=1.27.0
+  - pyproj>=3.5.0
+  - copernicusmarine>=1.0.0
+  - sysrsync>=1.1.0
+  - tqdm>=4.65.0
+  - fsspec>=2023.1.0
+  - pytest>=7.0.0 ; extra == 'dev'
+  - pytest-cov>=4.0.0 ; extra == 'dev'
+  - tables>=3.8.0 ; extra == 'all'
+  - zarr>=2.14.0 ; extra == 'all'
+  - scikit-learn>=1.2.0 ; extra == 'all'
+  - eumdac>=2.0.0 ; extra == 'all'
+  - rasterio>=1.3.0 ; extra == 'all'
+  - rio-tiler>=6.0.0 ; extra == 'all'
+  - tinydb>=4.7.0 ; extra == 'all'
+  - dynaconf>=3.1.0 ; extra == 'all'
+  - folium>=0.14.0 ; extra == 'all'
+  - ipython>=8.0.0 ; extra == 'all'
+  requires_python: '>=3.11'
   editable: true
 - conda: https://conda.anaconda.org/conda-forge/linux-64/proj-9.7.1-h99ae125_0.conda
   sha256: 551cd2b779902ff88cb945cd69af9978561347a17023403b64f476a5a82b70c5
