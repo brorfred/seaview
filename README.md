@@ -15,14 +15,36 @@ A Python package for generating slippy map tiles from oceanographic satellite da
 
 ## Installation
 
-This project uses [pixi](https://pixi.sh) for dependency management.
+### Using uv (recommended)
+
+[uv](https://docs.astral.sh/uv/) is a fast Python package installer and resolver.
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/cruise.git
+git clone https://github.com/brorfred/cruise.git
 cd cruise
 
-# Install dependencies
+# Create virtual environment and install
+uv venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+uv pip install -e ".[dev]"
+```
+
+### Using pip
+
+```bash
+git clone https://github.com/brorfred/cruise.git
+cd cruise
+pip install -e ".[dev]"
+```
+
+### Using pixi
+
+This project also supports [pixi](https://pixi.sh) for conda-based dependency management (recommended for complex geospatial dependencies).
+
+```bash
+git clone https://github.com/brorfred/cruise.git
+cd cruise
 pixi install
 ```
 
@@ -247,6 +269,10 @@ The `layer_config.json` file configures the web map layer panel:
 ## Running Tests
 
 ```bash
+# Using uv/pip
+pytest tests/ -v
+
+# Using pixi
 pixi run python -m pytest tests/ -v
 ```
 
