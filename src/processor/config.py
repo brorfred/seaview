@@ -14,8 +14,8 @@ def settings():
         lon1 = -75,
         lon2 = -5,
         tile_dir = BASE_TILE_DIR + CRUISENAME,
-        remote_html_dir = REMOTE_HTML_DIR
-        remote_tile_dir = REMOTE_HTML_DIR + "/tiles/" + CRUISENAME
+        remote_html_dir = REMOTE_HTML_DIR,
+        remote_tile_dir = REMOTE_HTML_DIR + "/tiles/" + CRUISENAME,
         data_dir = DATA_DIR + CRUISENAME,
         zoom_levels = [0,1,2,3,4,5,6,7,8,9]
 )
