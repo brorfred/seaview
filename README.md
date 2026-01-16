@@ -60,38 +60,48 @@ pixi install
 ## Quick Start
 
 ```python
-from processor import process_day
+from processor import tile
 
 # Generate tiles for a specific date
-process_day.all("2026-01-15")
+tile.all("2026-01-15")
 
 # Or generate individual products
-process_day.tile_ssh("2026-01-15")      # Sea Surface Height
-process_day.tile_sst("2026-01-15")      # Sea Surface Temperature
-process_day.tile_globcolour("2026-01-15")  # Chlorophyll
+tile.ssh("2026-01-15")         # Sea Surface Height
+tile.sst("2026-01-15")         # Sea Surface Temperature
+tile.globcolour("2026-01-15")  # Chlorophyll
 ```
 
 ## Configuration
 
-Edit `src/processor/config.py` to configure your cruise:
+Configuration is managed using [Dynaconf](https://www.dynaconf.com/). Create a `settings.toml` file in your project directory:
 
-```python
-CRUISENAME = "your_cruise_name"
-BASE_TILE_DIR = "/path/to/tile/output/"
-DATA_DIR = "/path/to/data/cache/"
+```toml
+[DEFAULT]
+base_tile_dir = "/path/to/tile/output/"
+base_data_dir = "/path/to/data/cache/"
+remote_html_dir = "/var/www/html/cruise/"
+remote_server = "yourserver"
 
-def settings():
-    return dict(
-        cruise_name = CRUISENAME,
-        lat1 = -55,        # Southern boundary
-        lat2 = -10,        # Northern boundary
-        lon1 = -75,        # Western boundary
-        lon2 = -5,         # Eastern boundary
-        tile_dir = BASE_TILE_DIR + CRUISENAME,
-        data_dir = DATA_DIR + CRUISENAME,
-        zoom_levels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    )
+# Cruise Specific Information
+cruise_name = "your_cruise_name"
+lat1 = -55        # Southern boundary
+lat2 = -10        # Northern boundary
+lon1 = -75        # Western boundary
+lon2 = -5         # Eastern boundary
+zoom_levels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+# Directories (use @format for interpolation)
+data_dir = "@format {this.base_data_dir}/{this.cruise_name}"
+tile_dir = "@format {this.base_tile_dir}/{this.cruise_name}"
+remote_tile_dir = "@format {this.remote_html_dir}/tiles/{this.cruise_name}"
 ```
+
+Settings are loaded from multiple locations (in order of precedence):
+1. `/etc/seastate/settings.toml` (system-wide)
+2. `~/.config/seastate/settings.toml` (user)
+3. `./settings.toml` (project directory)
+
+Environment variables prefixed with `SEASTATE_` will override settings.
 
 ## Project Structure
 
@@ -99,8 +109,8 @@ def settings():
 cruise/
 ├── src/processor/
 │   ├── __init__.py
-│   ├── config.py              # Cruise configuration
-│   ├── process_day.py         # Main tile generation orchestration
+│   ├── config.py              # Dynaconf settings loader
+│   ├── tile.py                # Main tile generation orchestration
 │   ├── layer_config.py        # Web layer configuration management
 │   ├── area_definitions.py    # Geographic projection utilities
 │   ├── data_sources/          # Data retrieval modules
@@ -113,34 +123,36 @@ cruise/
 │       └── copernicus_ssh.py  # SatPy file handler for SSH
 ├── tests/
 │   └── test_processor.py      # Test suite
+├── settings.toml              # Configuration file
 ├── pixi.toml                  # Pixi dependencies
 └── pyproject.toml             # Python package configuration
 ```
 
 ## API Reference
 
-### process_day
+### tile
 
 Main module for generating tiles.
 
 ```python
-from processor import process_day
+from processor import tile
 
 # Generate all products for a date
-process_day.all(dtm, verbose=False)
+tile.all(dtm, verbose=False)
 
 # Generate specific products
-process_day.tile_ssh(dtm, verbose=True)
-process_day.tile_sst(dtm, verbose=True)
-process_day.tile_globcolour(dtm, verbose=True)
+tile.ssh(dtm, verbose=True)
+tile.sst(dtm, verbose=True)
+tile.globcolour(dtm, verbose=True)
 
 # Sync tiles to remote server
-process_day.sync()
+tile.sync()
 ```
 
 **Parameters:**
 - `dtm`: Date string (e.g., "2026-01-15") or datetime object
 - `verbose`: Enable verbose output (default: True for individual functions)
+- `force`: Re-generate tiles even if they already exist (default: True)
 
 ### layer_config
 
@@ -282,12 +294,12 @@ Process multiple days:
 
 ```python
 import pandas as pd
-from processor import process_day
+from processor import tile
 
 # Generate tiles for a date range
 for date in pd.date_range("2026-01-01", "2026-01-15"):
     print(f"Processing {date.date()}")
-    process_day.all(date)
+    tile.all(date)
 ```
 
 ## Dependencies
