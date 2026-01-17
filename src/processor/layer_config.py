@@ -1,4 +1,9 @@
+"""Layer configuration management for map tile server.
 
+This module provides functions to generate, update, and synchronize
+JSON configuration files that define map layer settings for the
+tile server web interface.
+"""
 import json
 import pathlib
 
@@ -10,12 +15,26 @@ from . import config
 settings = config.settings
 
 VERBOSE = False
+
+
 def vprint(text):
+    """Print text if verbose mode is enabled.
+
+    Parameters
+    ----------
+    text : str
+        Text to print.
+    """
     if VERBOSE:
         print(text)
 
 
 def sync():
+    """Generate and sync layer configuration to remote server.
+
+    Generates a new layer configuration file, updates it with current
+    tile date ranges, and syncs to the remote server via rsync.
+    """
     tmp_dir = pathlib.Path("/tmp")
     generate_file(config_file_path=tmp_dir)
     update(json_file_path=tmp_dir / "layer_config.json")
@@ -28,6 +47,18 @@ def sync():
 
 
 def find_first_last_tile_dates():
+    """Find the date range of available tiles for each layer.
+
+    Scans the tile directory to determine the earliest and latest
+    available tile dates for each layer, respecting the maximum
+    tile days setting.
+
+    Returns
+    -------
+    dict
+        Dictionary mapping layer names to date range dictionaries
+        with 'start' and 'end' keys containing date objects.
+    """
     tilepath = pathlib.Path(settings["tile_dir"])
     vprint(tilepath)
     layer_dates = dict()
@@ -42,58 +73,48 @@ def find_first_last_tile_dates():
         layer_dates[layer.name] = dict(start=(dtm2 - ddtm).date(), end=dtm2.date())
     return layer_dates
 
-def update(json_file_path="layer_config.json"):
 
+def update(json_file_path="layer_config.json"):
+    """Update layer configuration file with current tile date ranges.
+
+    Parameters
+    ----------
+    json_file_path : str or pathlib.Path, optional
+        Path to the JSON configuration file, by default "layer_config.json".
+    """
     layer_dates = find_first_last_tile_dates()
     vprint(layer_dates)
     update_date_ranges(json_file_path=json_file_path, layer_dates=layer_dates)
 
-def update_date_ranges(json_file_path, layer_dates=None, output_file_path=None):
-    """
-    Update start and end dates in date_ranges for each layer individually in a JSON file.
 
-    Parameters:
-    -----------
-    json_file_path : str
-        Path to the input JSON file
+def update_date_ranges(json_file_path, layer_dates=None, output_file_path=None):
+    """Update start and end dates for each layer in a JSON configuration file.
+
+    Parameters
+    ----------
+    json_file_path : str or pathlib.Path
+        Path to the input JSON file.
     layer_dates : dict, optional
         Dictionary mapping layer IDs to their new date ranges.
-        Format: {
-            'layer_id': {
-                'start': pd.Timestamp or str,  # optional
-                'end': pd.Timestamp or str      # optional
-            }
-        }
-    output_file_path : str, optional
+        Format: {'layer_id': {'start': date, 'end': date}}.
+        Dates can be pd.Timestamp, datetime, or string.
+    output_file_path : str or pathlib.Path, optional
         Path to save the updated JSON. If None, overwrites the input file.
 
-    Returns:
+    Examples
     --------
-    dict : Updated JSON data
+    Update different dates for different layers using pandas Timestamps:
 
-    Examples:
-    ---------
-    # Update different dates for different layers using pandas Timestamps
-    layer_dates = {
-        'ssh': {'start': pd.Timestamp('2026-01-10'), 'end': pd.Timestamp('2026-01-15')},
-        'sst': {'start': pd.Timestamp('2026-01-11'), 'end': pd.Timestamp('2026-01-16')},
-        'globcolour': {'start': pd.Timestamp('2026-01-09'), 'end': pd.Timestamp('2026-01-14')}
-    }
-    update_date_ranges('data.json', layer_dates=layer_dates)
+    >>> layer_dates = {
+    ...     'ssh': {'start': pd.Timestamp('2026-01-10'), 'end': pd.Timestamp('2026-01-15')},
+    ...     'sst': {'start': pd.Timestamp('2026-01-11'), 'end': pd.Timestamp('2026-01-16')},
+    ... }
+    >>> update_date_ranges('data.json', layer_dates=layer_dates)
 
-    # Can also use string dates (pandas will parse them)
-    layer_dates = {
-        'ssh': {'start': '2026-01-10', 'end': '2026-01-15'}
-    }
-    update_date_ranges('data.json', layer_dates=layer_dates)
+    Use string dates (pandas will parse them):
 
-    # Use date arithmetic with pandas
-    base_date = pd.Timestamp('2026-01-10')
-    layer_dates = {
-        'ssh': {'start': base_date, 'end': base_date + pd.Timedelta(days=5)},
-        'sst': {'start': base_date + pd.Timedelta(days=1), 'end': base_date + pd.Timedelta(days=6)}
-    }
-    update_date_ranges('data.json', layer_dates=layer_dates)
+    >>> layer_dates = {'ssh': {'start': '2026-01-10', 'end': '2026-01-15'}}
+    >>> update_date_ranges('data.json', layer_dates=layer_dates)
     """
 
     # Read the JSON file
@@ -129,12 +150,17 @@ def update_date_ranges(json_file_path, layer_dates=None, output_file_path=None):
         json.dump(data, f, indent=2)
 
 def generate_file(remote_tile_url=None, config_file_path="./"):
-    """
-    Generate a JSON configuration file for map layers.
+    """Generate a JSON configuration file for map layers.
 
-    Args:
-        remote_tile_url: The base URL for the tile server
-        config_file_path: Directory path where the file will be saved (default: "./")
+    Creates a layer_config.json file with definitions for all available
+    map layers including SSH, SST, and chlorophyll products.
+
+    Parameters
+    ----------
+    remote_tile_url : str, optional
+        The base URL for the tile server. If None, uses settings.
+    config_file_path : str or pathlib.Path, optional
+        Directory path where the file will be saved, by default "./".
     """
     base_url = settings.get("remote_url")+"/tiles/"+settings.get("cruise_name")
     base_url = remote_tile_url or base_url

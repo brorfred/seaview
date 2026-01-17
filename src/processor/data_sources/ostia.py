@@ -1,12 +1,13 @@
-"""
+"""OSTIA Sea Surface Temperature data access.
 
-REF
----
-https://doi.org/10.48670/moi-00165
+This module provides functions to retrieve and access OSTIA
+(Operational Sea Surface Temperature and Ice Analysis) data
+from the Copernicus Marine Service.
 
-URLs
-----
-https://data.marine.copernicus.eu/product/SST_GLO_SST_L4_NRT_OBSERVATIONS_010_001/description
+References
+----------
+DOI: https://doi.org/10.48670/moi-00165
+Product: https://data.marine.copernicus.eu/product/SST_GLO_SST_L4_NRT_OBSERVATIONS_010_001/description
 """
 import os
 import glob
@@ -21,38 +22,85 @@ import satpy
 import xarray as xr
 import copernicusmarine
 from satpy import Scene
-#from satpy.dataset import DataID, Dataset  #0.59
-
-#os.environ["SATPY_CONFIG_PATH"] =
-#from .readers import copernicus_ssh
-#satpy.readers.copernicus_ssh = copernicus_ssh
-#satpy.config.set(config_path=[str(pathlib.Path(__file__).parent)+"/",])
 
 from processor.area_definitions import rectlinear as rectlin_area
 from processor import config
 settings = config.settings
-#settings = config.settings.from_env("modis_a")
 
 DATADIR = pathlib.Path(settings["data_dir"] + "/copernicus/OSTIA")
 DATADIR.mkdir(parents=True, exist_ok=True)
 
 
 VERBOSE = True
+
+
 def vprint(text):
+    """Print text if verbose mode is enabled.
+
+    Parameters
+    ----------
+    text : str
+        Text to print.
+    """
     if VERBOSE:
         print(text)
 
+
 def filename(dtm="2025-06-03"):
+    """Generate filename for OSTIA data file.
+
+    Parameters
+    ----------
+    dtm : str or datetime-like, optional
+        The date for the filename, by default "2025-06-03".
+
+    Returns
+    -------
+    str
+        Filename in format 'copernicus_OSTIA_YYYY-MM-DD.nc'.
+    """
     dtm = pd.to_datetime(dtm)
     return f"copernicus_OSTIA_{dtm.date()}.nc"
 
+
 def open_dataset(dtm="2025-06-03", force=False):
+    """Open OSTIA SST dataset for a given date.
+
+    Downloads the data if not already cached locally.
+
+    Parameters
+    ----------
+    dtm : str or datetime-like, optional
+        The date to retrieve, by default "2025-06-03".
+    force : bool, optional
+        Force download even if file exists, by default False.
+
+    Returns
+    -------
+    xarray.Dataset
+        Dataset containing SST variables.
+    """
     fn = DATADIR / filename(dtm=dtm)
     if not fn.is_file():
         retrieve(dtm=dtm, force=force)
     return xr.open_dataset(DATADIR / filename(dtm=dtm))
 
+
 def open_scene(dtm="2025-06-03", data_var="sla"):
+    """Open OSTIA data as a Satpy Scene.
+
+    Parameters
+    ----------
+    dtm : str or datetime-like, optional
+        The date to retrieve, by default "2025-06-03".
+    data_var : str, optional
+        Primary data variable name, by default "sla".
+
+    Returns
+    -------
+    satpy.Scene
+        Satpy Scene object with loaded variables.
+    """
     fn = DATADIR / filename(dtm=dtm)
     vprint(fn)
     if not fn.is_file():
@@ -61,8 +109,18 @@ def open_scene(dtm="2025-06-03", data_var="sla"):
     scn.load(['adt', 'sla', 'ugos', 'vgos'])
     return scn
 
+
 def retrieve(dtm="2025-06-03", force=False, parallel=True):
-    """
+    """Retrieve OSTIA SST data from Copernicus Marine Service.
+
+    Parameters
+    ----------
+    dtm : str or datetime-like, optional
+        The date to retrieve, by default "2025-06-03".
+    force : bool, optional
+        Force download even if file exists, by default False.
+    parallel : bool, optional
+        Use parallel download (unused), by default True.
     """
     if ((DATADIR / filename(dtm)).is_file() and not force):
         return

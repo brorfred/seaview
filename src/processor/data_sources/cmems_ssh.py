@@ -1,7 +1,10 @@
-"""
+"""CMEMS Sea Surface Height (SSH) data access.
 
-URLs
-----
+This module provides functions to retrieve and access Sea Surface Height
+data from the Copernicus Marine Service (CMEMS).
+
+References
+----------
 https://data.marine.copernicus.eu/product/SEALEVEL_GLO_PHY_L4_NRT_008_046/description
 """
 import os
@@ -17,38 +20,83 @@ import satpy
 import xarray as xr
 import copernicusmarine
 from satpy import Scene
-#from satpy.dataset import DataID, Dataset  #0.59
-
-#os.environ["SATPY_CONFIG_PATH"] =
-#from ..readers import copernicus_ssh
-#satpy.readers.copernicus_ssh = copernicus_ssh
-#satpy.config.set(config_path=[str(pathlib.Path(__file__).parent)+"/",])
 
 from ..area_definitions import rectlinear as rectlin_area
 from .. import config
 settings = config.settings
-#settings = config.settings.from_env("modis_a")
 
 DATADIR = pathlib.Path(settings["data_dir"] + "/copernicus/SSH")
 DATADIR.mkdir(parents=True, exist_ok=True)
 
 
 VERBOSE = True
+
+
 def vprint(text):
+    """Print text if verbose mode is enabled.
+
+    Parameters
+    ----------
+    text : str
+        Text to print.
+    """
     if VERBOSE:
         print(text)
 
+
 def filename(dtm="2025-06-03"):
+    """Generate filename for SSH data file.
+
+    Parameters
+    ----------
+    dtm : str or datetime-like, optional
+        The date for the filename, by default "2025-06-03".
+
+    Returns
+    -------
+    str
+        Filename in format 'copernicus_SSH_YYYY-MM-DD.nc'.
+    """
     dtm = pd.to_datetime(dtm)
     return f"copernicus_SSH_{dtm.date()}.nc"
 
+
 def open_dataset(dtm="2025-06-03"):
+    """Open SSH dataset for a given date.
+
+    Downloads the data if not already cached locally.
+
+    Parameters
+    ----------
+    dtm : str or datetime-like, optional
+        The date to retrieve, by default "2025-06-03".
+
+    Returns
+    -------
+    xarray.Dataset
+        Dataset containing SSH variables (sla, adt, ugos, vgos).
+    """
     fn = DATADIR / filename(dtm=dtm)
     if not fn.is_file():
         retrieve(dtm=dtm)
     return xr.open_dataset(DATADIR / filename(dtm=dtm))
 
+
 def open_scene(dtm="2025-06-03", data_var="sla"):
+    """Open SSH data as a Satpy Scene.
+
+    Parameters
+    ----------
+    dtm : str or datetime-like, optional
+        The date to retrieve, by default "2025-06-03".
+    data_var : str, optional
+        Primary data variable name, by default "sla".
+
+    Returns
+    -------
+    satpy.Scene
+        Satpy Scene object with loaded SSH variables.
+    """
     fn = DATADIR / filename(dtm=dtm)
     vprint(fn)
     if not fn.is_file():
@@ -57,8 +105,18 @@ def open_scene(dtm="2025-06-03", data_var="sla"):
     scn.load(['adt', 'sla', 'ugos', 'vgos'])
     return scn
 
+
 def retrieve(dtm="2025-06-03", force=False, parallel=True):
-    """
+    """Retrieve SSH data from Copernicus Marine Service.
+
+    Parameters
+    ----------
+    dtm : str or datetime-like, optional
+        The date to retrieve, by default "2025-06-03".
+    force : bool, optional
+        Force download even if file exists, by default False.
+    parallel : bool, optional
+        Use parallel download (unused), by default True.
     """
     if ((DATADIR / filename(dtm)).is_file() and not force):
         return

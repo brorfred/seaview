@@ -1,12 +1,12 @@
-"""
+"""GlobColour chlorophyll data access.
 
-REF
----
-https://doi.org/10.48670/moi-00165
+This module provides functions to retrieve and access GlobColour merged
+chlorophyll-a concentration data from the Copernicus Marine Service.
 
-URLs
-----
-https://data.marine.copernicus.eu/product/SST_GLO_SST_L4_NRT_OBSERVATIONS_010_001/description
+References
+----------
+DOI: https://doi.org/10.48670/moi-00165
+Product: https://data.marine.copernicus.eu/product/OCEANCOLOUR_GLO_BGC_L3_NRT_009_101/description
 """
 import pathlib
 import copernicusmarine
@@ -19,9 +19,7 @@ from satpy import Scene
 
 from processor.area_definitions import rectlinear as rectlin_area
 from processor import config
-# , DateInFutureError
 settings = config.settings
-#settings = config.settings.from_env("modis_a")
 
 DATADIR = pathlib.Path(settings["data_dir"] + "/copernicus/GlobColour")
 DATADIR.mkdir(parents=True, exist_ok=True)
@@ -30,21 +28,75 @@ DATASET_ID = "cmems_obs-oc_glo_bgc-plankton_nrt_l3-multi-4km_P1D"
 filename_prefix = "GLOBCOLOUR"
 
 VERBOSE = True
+
+
 def vprint(text):
+    """Print text if verbose mode is enabled.
+
+    Parameters
+    ----------
+    text : str
+        Text to print.
+    """
     if VERBOSE:
         print(text)
 
+
 def filename(dtm="2025-06-03"):
+    """Generate filename for GlobColour data file.
+
+    Parameters
+    ----------
+    dtm : str or datetime-like, optional
+        The date for the filename, by default "2025-06-03".
+
+    Returns
+    -------
+    str
+        Filename in format 'copernicus_GLOBCOLOUR_YYYY-MM-DD.nc'.
+    """
     dtm = pd.to_datetime(dtm)
     return f"copernicus_{filename_prefix}_{dtm.date()}.nc"
 
+
 def open_dataset(dtm="2025-06-03", force=False):
+    """Open GlobColour chlorophyll dataset for a given date.
+
+    Downloads the data if not already cached locally.
+
+    Parameters
+    ----------
+    dtm : str or datetime-like, optional
+        The date to retrieve, by default "2025-06-03".
+    force : bool, optional
+        Force download even if file exists, by default False.
+
+    Returns
+    -------
+    xarray.Dataset
+        Dataset containing chlorophyll concentration (CHL).
+    """
     fn = DATADIR / filename(dtm=dtm)
     if not fn.is_file():
         retrieve(dtm=dtm, force=force)
     return xr.open_dataset(DATADIR / filename(dtm=dtm))
 
+
 def open_scene(dtm="2025-06-03", data_var="sla"):
+    """Open GlobColour data as a Satpy Scene.
+
+    Parameters
+    ----------
+    dtm : str or datetime-like, optional
+        The date to retrieve, by default "2025-06-03".
+    data_var : str, optional
+        Primary data variable name, by default "sla".
+
+    Returns
+    -------
+    satpy.Scene
+        Satpy Scene object with loaded variables.
+    """
     fn = DATADIR / filename(dtm=dtm)
     vprint(fn)
     if not fn.is_file():
@@ -53,8 +105,18 @@ def open_scene(dtm="2025-06-03", data_var="sla"):
     scn.load(['adt', 'sla', 'ugos', 'vgos'])
     return scn
 
+
 def retrieve(dtm="2025-06-03", force=False, parallel=True):
-    """
+    """Retrieve GlobColour data from Copernicus Marine Service.
+
+    Parameters
+    ----------
+    dtm : str or datetime-like, optional
+        The date to retrieve, by default "2025-06-03".
+    force : bool, optional
+        Force download even if file exists, by default False.
+    parallel : bool, optional
+        Use parallel download (unused), by default True.
     """
     if ((DATADIR / filename(dtm)).is_file() and not force):
         return

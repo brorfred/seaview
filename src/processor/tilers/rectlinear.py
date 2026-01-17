@@ -1,8 +1,7 @@
-"""
-Slippy Tile Generator for Satpy Scenes
+"""Slippy Tile Generator for Satpy Scenes.
 
-Generates filled contour slippy map tiles from satpy scenes with parallel processing.
-Uses mercantile for robust tile calculations.
+This module generates filled contour slippy map tiles from satpy scenes
+with parallel processing. Uses mercantile for robust tile calculations.
 """
 
 import os
@@ -19,25 +18,60 @@ import mercantile
 import io
 
 VERBOSE = True
+
+
 def vprint(string):
+    """Print string if verbose mode is enabled.
+
+    Parameters
+    ----------
+    string : str
+        Text to print.
+    """
     if VERBOSE:
         print(string)
 
+
 class SlippyTileGenerator:
-    """Generate slippy map tiles from satpy scenes with filled contours."""
+    """Generate slippy map tiles from satpy scenes with filled contours.
+
+    Parameters
+    ----------
+    min_lat : float, optional
+        Minimum latitude (southern boundary), by default -15.
+    max_lat : float, optional
+        Maximum latitude (northern boundary), by default 55.
+    min_lon : float, optional
+        Minimum longitude (western boundary), by default -75.
+    max_lon : float, optional
+        Maximum longitude (eastern boundary), by default -5.
+
+    Attributes
+    ----------
+    TILE_SIZE : int
+        Size of output tiles in pixels (256).
+    min_lat, max_lat : float
+        Latitude bounds.
+    min_lon, max_lon : float
+        Longitude bounds.
+    """
 
     TILE_SIZE = 256
 
     def __init__(self, min_lat: float = -15, max_lat: float = 55,
                  min_lon: float = -75, max_lon: float = -5):
-        """
-        Initialize tile generator with geographic bounds.
+        """Initialize tile generator with geographic bounds.
 
-        Args:
-            min_lat: Minimum latitude (southern boundary)
-            max_lat: Maximum latitude (northern boundary)
-            min_lon: Minimum longitude (western boundary)
-            max_lon: Maximum longitude (eastern boundary)
+        Parameters
+        ----------
+        min_lat : float, optional
+            Minimum latitude (southern boundary), by default -15.
+        max_lat : float, optional
+            Maximum latitude (northern boundary), by default 55.
+        min_lon : float, optional
+            Minimum longitude (western boundary), by default -75.
+        max_lon : float, optional
+            Maximum longitude (eastern boundary), by default -5.
         """
         self.min_lat = min_lat
         self.max_lat = max_lat
@@ -45,7 +79,18 @@ class SlippyTileGenerator:
         self.max_lon = max_lon
 
     def get_tiles_for_bounds(self, zoom: int):
-        """Get all tiles that intersect with the geographic bounds at given zoom level."""
+        """Get all tiles that intersect with the geographic bounds.
+
+        Parameters
+        ----------
+        zoom : int
+            Zoom level for tile calculation.
+
+        Returns
+        -------
+        list of mercantile.Tile
+            List of tiles covering the bounding box.
+        """
         # Get tiles that cover the bounding box
         tiles = list(mercantile.tiles(
             self.min_lon, self.min_lat,
@@ -55,7 +100,17 @@ class SlippyTileGenerator:
         return tiles
 
     def diagnose_coverage(self, scene_lats: np.ndarray, scene_lons: np.ndarray, zoom: int):
-        """Diagnose data coverage across tiles at a given zoom level."""
+        """Diagnose data coverage across tiles at a given zoom level.
+
+        Parameters
+        ----------
+        scene_lats : numpy.ndarray
+            Latitude coordinates of the scene data.
+        scene_lons : numpy.ndarray
+            Longitude coordinates of the scene data.
+        zoom : int
+            Zoom level to diagnose.
+        """
         # Get actual data bounds
         if scene_lats.ndim == 1:
             data_min_lat = scene_lats.min()
@@ -86,20 +141,30 @@ class SlippyTileGenerator:
                       num_workers: int = 10, cmap: str = 'RdBu',
                       levels: int = 20, vmin: Optional[float] = None,
                       vmax: Optional[float] = None):
-        """
-        Generate tiles for multiple zoom levels in parallel.
+        """Generate tiles for multiple zoom levels in parallel.
 
-        Args:
-            scene_data: 2D array of scene values
-            scene_lats: 1D or 2D array of latitudes (y coordinates, can be ascending or descending)
-            scene_lons: 1D or 2D array of longitudes (x coordinates, can be ascending or descending)
-            output_dir: Output directory for tiles
-            zoom_levels: List of zoom levels to generate
-            num_workers: Number of parallel workers
-            cmap: Matplotlib colormap name
-            levels: Number of contour levels
-            vmin: Minimum value for colormap (None for auto)
-            vmax: Maximum value for colormap (None for auto)
+        Parameters
+        ----------
+        scene_data : numpy.ndarray
+            2D array of scene values.
+        scene_lats : numpy.ndarray
+            1D or 2D array of latitudes (can be ascending or descending).
+        scene_lons : numpy.ndarray
+            1D or 2D array of longitudes (can be ascending or descending).
+        output_dir : str
+            Output directory for tiles.
+        zoom_levels : list of int
+            List of zoom levels to generate.
+        num_workers : int, optional
+            Number of parallel workers, by default 10.
+        cmap : str, optional
+            Matplotlib colormap name, by default 'RdBu'.
+        levels : int, optional
+            Number of contour levels, by default 20.
+        vmin : float, optional
+            Minimum value for colormap. If None, auto-calculated.
+        vmax : float, optional
+            Maximum value for colormap. If None, auto-calculated.
         """
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
@@ -194,7 +259,33 @@ class SlippyTileGenerator:
                              lats: np.ndarray, lons: np.ndarray, data: np.ndarray,
                              output_dir: str, cmap: str, levels: int,
                              vmin: float, vmax: float):
-        """Generate a single tile (called in parallel)."""
+        """Generate a single tile (called in parallel).
+
+        Parameters
+        ----------
+        zoom : int
+            Zoom level.
+        x : int
+            Tile x coordinate.
+        y : int
+            Tile y coordinate.
+        lats : numpy.ndarray
+            Flattened latitude values for valid data points.
+        lons : numpy.ndarray
+            Flattened longitude values for valid data points.
+        data : numpy.ndarray
+            Flattened data values for valid points.
+        output_dir : str
+            Output directory path.
+        cmap : str
+            Matplotlib colormap name.
+        levels : int
+            Number of contour levels.
+        vmin : float
+            Minimum value for colormap.
+        vmax : float
+            Maximum value for colormap.
+        """
         # Get tile bounds using mercantile
         bounds = mercantile.bounds(x, y, zoom)
         lon_left = bounds.west

@@ -1,3 +1,9 @@
+"""Tile generation module for oceanographic data products.
+
+This module provides functions to generate slippy map tiles from various
+oceanographic data sources including SSH (Sea Surface Height), SST (Sea
+Surface Temperature), and chlorophyll concentration.
+"""
 import pathlib
 
 import numpy as np
@@ -11,14 +17,39 @@ from . import config
 settings = config.settings
 from copernicusmarine import CoordinatesOutOfDatasetBounds
 
+
 def tiles_exists(id, dtm):
+    """Check if tiles already exist for a given product and date.
+
+    Parameters
+    ----------
+    id : str
+        Product identifier (e.g., 'ssh', 'ostia', 'globcolour').
+    dtm : str or datetime-like
+        The date to check.
+
+    Returns
+    -------
+    bool
+        True if the tile directory exists, False otherwise.
+    """
     dtm = str(pd.to_datetime(dtm).date())
     tilepath = pathlib.Path(settings["tile_dir"]) / id / dtm
     return tilepath.is_dir()
 
 
-
 def ssh(dtm, verbose=True, force=True):
+    """Generate SSH (Sea Surface Height) tiles for a given date.
+
+    Parameters
+    ----------
+    dtm : str or datetime-like
+        The date to generate tiles for.
+    verbose : bool, optional
+        Enable verbose output, by default True.
+    force : bool, optional
+        Force regeneration even if tiles exist, by default True.
+    """
     if tiles_exists("ssh", dtm) and not force:
         return
     rectlin_tiler.VERBOSE = verbose
@@ -46,10 +77,39 @@ def ssh(dtm, verbose=True, force=True):
                              vmin=-0.75,
                              vmax=0.75)
 
+
 def sst(dtm, verbose=True, force=True):
+    """Generate SST (Sea Surface Temperature) tiles for a given date.
+
+    Alias for :func:`ostia`.
+
+    Parameters
+    ----------
+    dtm : str or datetime-like
+        The date to generate tiles for.
+    verbose : bool, optional
+        Enable verbose output, by default True.
+    force : bool, optional
+        Force regeneration even if tiles exist, by default True.
+    """
     ostia(dtm, verbose, force)
 
+
 def ostia(dtm, verbose=True, force=True):
+    """Generate OSTIA SST tiles for a given date.
+
+    Uses the OSTIA (Operational Sea Surface Temperature and Ice Analysis)
+    dataset from Copernicus Marine Service.
+
+    Parameters
+    ----------
+    dtm : str or datetime-like
+        The date to generate tiles for.
+    verbose : bool, optional
+        Enable verbose output, by default True.
+    force : bool, optional
+        Force regeneration even if tiles exist, by default True.
+    """
     if tiles_exists("ostia", dtm) and not force:
         return
     rectlin_tiler.VERBOSE = verbose
@@ -77,7 +137,22 @@ def ostia(dtm, verbose=True, force=True):
                              vmin=10,
                              vmax=28)
 
+
 def globcolour(dtm, verbose=True, force=True):
+    """Generate GlobColour chlorophyll tiles for a given date.
+
+    Uses the GlobColour merged chlorophyll-a product from
+    Copernicus Marine Service. Values are log-transformed for display.
+
+    Parameters
+    ----------
+    dtm : str or datetime-like
+        The date to generate tiles for.
+    verbose : bool, optional
+        Enable verbose output, by default True.
+    force : bool, optional
+        Force regeneration even if tiles exist, by default True.
+    """
     if tiles_exists("globcolour", dtm) and not force:
         return
     rectlin_tiler.VERBOSE = verbose
@@ -108,6 +183,18 @@ def globcolour(dtm, verbose=True, force=True):
 
 
 def all(dtm, verbose=False):
+    """Generate all tile products for a given date.
+
+    Generates SSH, SST, and GlobColour tiles. Does not regenerate
+    tiles that already exist.
+
+    Parameters
+    ----------
+    dtm : str or datetime-like
+        The date to generate tiles for.
+    verbose : bool, optional
+        Enable verbose output, by default False.
+    """
     print("Process SSH tiles")
     ssh(dtm, verbose=verbose, force=False)
     print("Process SST tiles")
@@ -115,7 +202,13 @@ def all(dtm, verbose=False):
     print("Process globcolour tiles")
     globcolour(dtm, verbose=verbose, force=False)
 
+
 def sync():
+    """Synchronize local tiles to remote server via rsync.
+
+    Uses sysrsync to transfer tiles from the local tile directory
+    to the configured remote server.
+    """
     local_tiledir = settings["tile_dir"]
     remote_tile_dir = settings["remote_tile_dir"]
     sysrsync.run(source=local_tiledir,
