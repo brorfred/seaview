@@ -77,6 +77,8 @@ def retrieve(dtm="2025-06-03", force=False, parallel=True):
         #dataset_id="cmems_mod_glo_phy_my_0.083deg_P1D-m",
         dataset_id="cmems_obs-sl_glo_phy-ssh_nrt_allsat-l4-duacs-0.125deg_P1D",
         #variables=["uo", "vo"],
+        username = settings.get("cmems_login"),
+        password = settings.get("cmems_password"),
         minimum_longitude=settings["lon1"],
         maximum_longitude=settings["lon2"],
         minimum_latitude=settings["lat1"],

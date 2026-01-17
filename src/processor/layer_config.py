@@ -6,12 +6,13 @@ import pandas as pd
 import sysrsync
 
 from . import config
-settings = config.settings()
+settings = config.settings
 
 VERBOSE = False
 def vprint(text):
     if VERBOSE:
         print(text)
+
 
 def sync():
     update()
