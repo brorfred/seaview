@@ -1,4 +1,4 @@
-# _seastate_ a cruise Support Processor
+# SEASTATE a Cruise Support Processor
 
 A Python package for generating slippy map tiles from oceanographic satellite data for research cruise support. The processor retrieves near-real-time (NRT) data from Copernicus Marine Service and generates web-ready map tiles for visualization.
 
@@ -60,7 +60,7 @@ pixi install
 ## Quick Start
 
 ```python
-from processor import tile
+from seastate import tile
 
 # Generate tiles for a specific date
 tile.all("2026-01-15")
@@ -107,7 +107,7 @@ Environment variables prefixed with `SEASTATE_` will override settings.
 
 ```
 seastate/
-├── src/processor/
+├── src/seastate/
 │   ├── __init__.py
 │   ├── config.py              # Dynaconf settings loader
 │   ├── tile.py                # Main tile generation orchestration
@@ -135,7 +135,7 @@ seastate/
 Main module for generating tiles.
 
 ```python
-from processor import tile
+from seastate import tile
 
 # Generate all products for a date
 tile.all(dtm, verbose=False)
@@ -159,7 +159,7 @@ tile.sync()
 Manages the `layer_config.json` file for web map layer configuration.
 
 ```python
-from processor import layer_config
+from seastate import layer_config
 
 # Update date ranges from existing tiles
 layer_config.update()
@@ -176,7 +176,7 @@ layer_config.sync()
 Geographic projection and grid utilities.
 
 ```python
-from processor import area_definitions
+from seastate import area_definitions
 
 # Get Web Mercator resolution for a zoom level
 resolution = area_definitions.zoom_to_resolution_m(zoom=5)
@@ -196,7 +196,7 @@ area = area_definitions.nasa(resolution="4km")
 Low-level tile generation class.
 
 ```python
-from processor.tilers.rectlinear import SlippyTileGenerator
+from seastate.tilers.rectlinear import SlippyTileGenerator
 
 generator = SlippyTileGenerator(
     min_lat=-45,
@@ -294,7 +294,7 @@ Process multiple days:
 
 ```python
 import pandas as pd
-from processor import tile
+from seastate import tile
 
 # Generate tiles for a date range
 for date in pd.date_range("2026-01-01", "2026-01-15"):
