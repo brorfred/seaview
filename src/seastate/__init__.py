@@ -18,7 +18,7 @@ class DateInFutureError(Exception):
     pass
 
 
-def day(dtm):
+def day(dtm, force=False, verbose=False):
     """Process tiles for a specific day.
 
     Parameters
@@ -30,29 +30,29 @@ def day(dtm):
     -----
     This function is currently a placeholder and not implemented.
     """
-    pass
+    tile.all(dtm, force=force, verbose=False)
 
 
-def today():
+def today(force=False):
     """Process tiles for today's date.
 
     Generates all tile products for the current date and optionally
     syncs to remote server if configured.
     """
     dtm = pd.Timestamp.now().normalize()
-    tile.all(dtm)
+    tile.all(dtm, force=force)
     if config.settings.get("remote_sync"):
         tile.sync()
 
 
-def yesterday():
+def yesterday(force=False):
     """Process tiles for yesterday's date.
 
     Generates all tile products for yesterday and optionally syncs
     tiles and layer configuration to remote server if configured.
     """
     dtm = pd.Timestamp.now().normalize()-pd.Timedelta(1,"D")
-    tile.all(dtm)
+    tile.all(dtm, force=False)
     if config.settings.get("remote_sync"):
         print("Sync tiles")
         tile.sync()
