@@ -7,19 +7,13 @@ References
 ----------
 https://data.marine.copernicus.eu/product/SEALEVEL_GLO_PHY_L4_NRT_008_046/description
 """
-import os
-import glob
 import pathlib
-import shutil
-import zipfile
 from concurrent.futures import ThreadPoolExecutor
-import copernicusmarine
 
 import pandas as pd
 import satpy
 import xarray as xr
 import copernicusmarine
-from satpy import Scene
 
 from ..area_definitions import rectlinear as rectlin_area
 from .. import config
@@ -101,7 +95,7 @@ def open_scene(dtm="2025-06-03", data_var="sla"):
     vprint(fn)
     if not fn.is_file():
         retrieve(dtm=dtm)
-    scn = Scene(filenames=[fn], reader='copernicus_ssh')
+    scn = satpy.Scene(filenames=[fn], reader='copernicus_ssh')
     scn.load(['adt', 'sla', 'ugos', 'vgos'])
     return scn
 
