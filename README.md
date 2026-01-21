@@ -1,13 +1,16 @@
-# SEASTATE a Cruise Support Processor
+# Seastate - A Cruise Support Processor
+
+[![Documentation](https://img.shields.io/badge/docs-mkdocs-blue)](docs/)
 
 A Python package for generating slippy map tiles from oceanographic satellite data for research cruise support. The processor retrieves near-real-time (NRT) data from Copernicus Marine Service and generates web-ready map tiles for visualization.
 
 ## Features
 
-- **Automated Data Retrieval**: Downloads oceanographic data from Copernicus Marine Service
+- **Automated Data Retrieval**: Downloads oceanographic data from Copernicus Marine Service and CEDA
   - Sea Surface Height (SSH) from DUACS L4 altimetry
   - Sea Surface Temperature (SST) from OSTIA
   - Chlorophyll concentration from GlobColour
+  - Bathymetry from GEBCO
 - **Slippy Map Tile Generation**: Creates standard XYZ tiles compatible with Leaflet, OpenLayers, and other web mapping libraries
 - **Parallel Processing**: Multi-core tile generation for fast processing
 - **Configurable Regions**: Define custom geographic bounds for your cruise area
@@ -110,20 +113,25 @@ seastate/
 ├── src/seastate/
 │   ├── __init__.py
 │   ├── config.py              # Dynaconf settings loader
+│   ├── cli.py                 # Command-line interface
 │   ├── tile.py                # Main tile generation orchestration
 │   ├── layer_config.py        # Web layer configuration management
 │   ├── area_definitions.py    # Geographic projection utilities
 │   ├── data_sources/          # Data retrieval modules
 │   │   ├── cmems_ssh.py       # Sea Surface Height (Copernicus)
 │   │   ├── ostia.py           # Sea Surface Temperature (OSTIA)
-│   │   └── globcolour.py      # Chlorophyll (GlobColour)
+│   │   ├── globcolour.py      # Chlorophyll (GlobColour)
+│   │   └── gebco_bathy.py     # Bathymetry (GEBCO)
 │   ├── tilers/
-│   │   └── rectlinear.py      # Slippy tile generator
+│   │   ├── rectlinear.py      # Slippy tile generator
+│   │   └── utils.py           # Tile utility functions
 │   └── readers/
 │       └── copernicus_ssh.py  # SatPy file handler for SSH
+├── docs/                      # MkDocs documentation
 ├── tests/
 │   └── test_processor.py      # Test suite
 ├── settings.toml              # Configuration file
+├── mkdocs.yml                 # Documentation configuration
 ├── pixi.toml                  # Pixi dependencies
 └── pyproject.toml             # Python package configuration
 ```
@@ -243,6 +251,13 @@ generator.generate_tiles(
 - **Resolution**: 4 km
 - **Reference**: [OCEANCOLOUR_GLO_BGC_L3_NRT_009_101](https://data.marine.copernicus.eu/product/OCEANCOLOUR_GLO_BGC_L3_NRT_009_101)
 
+### Bathymetry (GEBCO)
+
+- **Source**: CEDA via OPeNDAP
+- **Dataset**: GEBCO 2025 Sub-Ice Topography
+- **Resolution**: 15 arc-second (~450m)
+- **Reference**: [GEBCO Gridded Bathymetry Data](https://www.gebco.net/data_and_products/gridded_bathymetry_data/)
+
 ## Output Format
 
 Generated tiles follow the standard slippy map tile naming convention:
@@ -326,8 +341,24 @@ Key dependencies managed via pixi:
 
 [Add your license here]
 
+## Documentation
+
+Full documentation is available in the `docs/` directory and can be built with MkDocs:
+
+```bash
+# Install documentation dependencies
+pip install mkdocs mkdocs-material mkdocstrings[python]
+
+# Serve documentation locally
+mkdocs serve
+
+# Build static documentation
+mkdocs build
+```
+
 ## Acknowledgments
 
 - [Copernicus Marine Service](https://marine.copernicus.eu/) for providing oceanographic data
+- [GEBCO](https://www.gebco.net/) for bathymetry data
 - [SatPy](https://satpy.readthedocs.io/) for satellite data processing capabilities
 - [Pyresample](https://pyresample.readthedocs.io/) for geographic resampling
