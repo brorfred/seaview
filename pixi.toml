@@ -1,4 +1,4 @@
-[project]
+[workspace]
 authors = ["Bror Jonsson <brorfred@gmail.com>"]
 channels = ["conda-forge"]
 description = "Cruise support package"
