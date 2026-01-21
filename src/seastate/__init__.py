@@ -33,7 +33,7 @@ def day(dtm, force=False, verbose=False):
     tile.all(dtm, force=force, verbose=False)
 
 
-def today(force=False):
+def today(force=False, sync=True):
     """Process tiles for today's date.
 
     Generates all tile products for the current date and optionally
@@ -41,13 +41,13 @@ def today(force=False):
     """
     dtm = pd.Timestamp.now().normalize()
     tile.all(dtm, force=force)
-    if config.settings.get("remote_sync"):
+    if config.settings.get("remote_sync") and sync:
         tile.sync()
         layer_config.sync()
 
 
 
-def yesterday(force=False):
+def yesterday(force=False, sync=True):
     """Process tiles for yesterday's date.
 
     Generates all tile products for yesterday and optionally syncs
@@ -55,13 +55,13 @@ def yesterday(force=False):
     """
     dtm = pd.Timestamp.now().normalize()-pd.Timedelta(1,"D")
     tile.all(dtm, force=False)
-    if config.settings.get("remote_sync"):
+    if config.settings.get("remote_sync") and sync:
         print("Sync tiles")
         tile.sync()
         layer_config.sync()
 
 
-def last_days(days=7):
+def last_days(days=7, sync=True):
     """Process tiles for the last N days.
 
     Parameters
@@ -78,6 +78,6 @@ def last_days(days=7):
     dtm2 = pd.Timestamp.now().normalize()
     for dtm in pd.date_range(dtm1, dtm2):
         tile.all(dtm)
-    if config.settings.get("remote_sync"):
+    if config.settings.get("remote_sync") and sync:
         tile.sync()
         layer_config.sync()
