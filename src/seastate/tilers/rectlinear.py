@@ -168,6 +168,10 @@ class SlippyTileGenerator:
             Minimum value for colormap. If None, auto-calculated.
         vmax : float, optional
             Maximum value for colormap. If None, auto-calculated.
+        add_contour_lines : bool, optional
+            Whether to add contour lines on top of filled contours, by default False.
+        contour_levels : int, optional
+            Number of contour line levels, by default 5.
         """
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
@@ -290,6 +294,10 @@ class SlippyTileGenerator:
             Minimum value for colormap.
         vmax : float
             Maximum value for colormap.
+        add_contour_lines : bool
+            Whether to add contour lines on top of filled contours.
+        contour_levels : int
+            Number of contour line levels.
         """
         # Get tile bounds using mercantile
         bounds = mercantile.bounds(x, y, zoom)
