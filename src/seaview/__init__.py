@@ -48,7 +48,7 @@ def today(force=False, sync=True):
     """
     dtm = pd.Timestamp.now().normalize()
     tile.all(dtm, force=force)
-    if config.settings.get("remote_sync") and sync:
+    if settings.get("remote_sync") and settings.get("tiles_updated") and sync:
         tile.sync()
         layer_config.sync()
 
@@ -69,7 +69,7 @@ def yesterday(force=False, sync=True):
     """
     dtm = pd.Timestamp.now().normalize()-pd.Timedelta(1,"D")
     tile.all(dtm, force=False)
-    if config.settings.get("remote_sync") and sync:
+    if settings.get("remote_sync") and settings.get("tiles_updated") and sync:
         print("Sync tiles")
         tile.sync()
         layer_config.sync()
@@ -92,6 +92,6 @@ def last_days(days=7, sync=True):
     dtm2 = pd.Timestamp.now().normalize()
     for dtm in pd.date_range(dtm1, dtm2):
         tile.all(dtm)
-    if config.settings.get("remote_sync") and sync:
+    if settings.get("remote_sync") and settings.get("tiles_updated") and sync:
         tile.sync()
         layer_config.sync()

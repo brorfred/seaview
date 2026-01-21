@@ -74,7 +74,7 @@ def bathy(dtm=None, verbose=True, force=True):
                              vmax=0,
                              add_contour_lines=True,
                              contour_levels=np.arange(-6000,0,500))
-
+    settings.set("tiles_updated", True)
 
 def ssh(dtm, verbose=True, force=True):
     """Generate SSH (Sea Surface Height) tiles for a given date.
@@ -114,6 +114,7 @@ def ssh(dtm, verbose=True, force=True):
                              cmap="RdBu",
                              vmin=-0.75,
                              vmax=0.75)
+    settings.set("tiles_updated", True)
 
 
 def sst(dtm, verbose=True, force=True):
@@ -174,6 +175,8 @@ def ostia(dtm, verbose=True, force=True):
                              cmap="viridis",
                              vmin=10,
                              vmax=28)
+    settings.set("tiles_updated", True)
+
 
 
 def globcolour(dtm, verbose=True, force=True):
@@ -218,6 +221,7 @@ def globcolour(dtm, verbose=True, force=True):
                              vmin=-4.6,
                              vmax=4.6,
                              levels=50)
+    settings.set("tiles_updated", True)
 
 
 def all(dtm, force=False, verbose=False):
@@ -257,3 +261,4 @@ def sync():
                  sync_source_contents=True,
                  strict=True,
                  )
+    settings.set("tiles_updated", False)
