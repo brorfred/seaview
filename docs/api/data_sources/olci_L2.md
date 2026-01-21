@@ -1,4 +1,4 @@
-# seastate.data_sources.olci_L2
+# seaview.data_sources.olci_L2
 
 OLCI Level-2 ocean colour data access from EUMETSAT.
 
@@ -12,7 +12,7 @@ Level-2 ocean colour products from the EUMETSAT Data Store.
 ## Example Usage
 
 ```python
-from seastate.data_sources import olci_L2
+from seaview.data_sources import olci_L2
 
 # Retrieve swaths for a date
 olci_L2.retrieve(dtm="2026-01-15")
@@ -30,7 +30,7 @@ scenes = olci_L2.extract_swath_scenes(dtm="2026-01-15")
 
 ## API Reference
 
-::: seastate.data_sources.olci_L2
+::: seaview.data_sources.olci_L2
     options:
       show_root_heading: false
       show_root_full_path: false

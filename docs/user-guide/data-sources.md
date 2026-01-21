@@ -1,12 +1,12 @@
 # Data Sources
 
-Seastate supports multiple oceanographic data sources from Copernicus Marine Service (CMEMS) and EUMETSAT.
+Seaview supports multiple oceanographic data sources from Copernicus Marine Service (CMEMS) and EUMETSAT.
 
 ## Copernicus Marine Service (CMEMS)
 
 ### Sea Surface Height (SSH)
 
-**Module**: `seastate.data_sources.cmems_ssh`
+**Module**: `seaview.data_sources.cmems_ssh`
 
 **Product**: SEALEVEL_GLO_PHY_L4_NRT_008_046
 
@@ -18,7 +18,7 @@ Seastate supports multiple oceanographic data sources from Copernicus Marine Ser
 | Coverage | Global |
 
 ```python
-from seastate.data_sources import cmems_ssh
+from seaview.data_sources import cmems_ssh
 
 # Open dataset for a specific date
 ds = cmems_ssh.open_dataset(dtm="2026-01-15")
@@ -40,7 +40,7 @@ scn = cmems_ssh.open_scene(dtm="2026-01-15")
 
 ### Sea Surface Temperature (OSTIA)
 
-**Module**: `seastate.data_sources.ostia`
+**Module**: `seaview.data_sources.ostia`
 
 **Product**: SST_GLO_SST_L4_NRT_OBSERVATIONS_010_001
 
@@ -52,7 +52,7 @@ scn = cmems_ssh.open_scene(dtm="2026-01-15")
 | Coverage | Global |
 
 ```python
-from seastate.data_sources import ostia
+from seaview.data_sources import ostia
 
 # Open dataset
 ds = ostia.open_dataset(dtm="2026-01-15")
@@ -64,7 +64,7 @@ print(f"SST range: {float(sst_celsius.min()):.1f} to {float(sst_celsius.max()):.
 
 ### Chlorophyll-a (GlobColour)
 
-**Module**: `seastate.data_sources.globcolour`
+**Module**: `seaview.data_sources.globcolour`
 
 **Product**: OCEANCOLOUR_GLO_BGC_L3_NRT_009_101
 
@@ -76,7 +76,7 @@ print(f"SST range: {float(sst_celsius.min()):.1f} to {float(sst_celsius.max()):.
 | Coverage | Global |
 
 ```python
-from seastate.data_sources import globcolour
+from seaview.data_sources import globcolour
 
 # Open dataset
 ds = globcolour.open_dataset(dtm="2026-01-15")
@@ -93,7 +93,7 @@ print(f"Chl range: {float(chl.min()):.3f} to {float(chl.max()):.1f} mg/m³")
 
 ### Sentinel-3 OLCI Level-2
 
-**Module**: `seastate.data_sources.olci_L2`
+**Module**: `seaview.data_sources.olci_L2`
 
 **Product**: EO:EUM:DAT:0407
 
@@ -105,7 +105,7 @@ print(f"Chl range: {float(chl.min()):.3f} to {float(chl.max()):.1f} mg/m³")
 | Coverage | Swath-based |
 
 ```python
-from seastate.data_sources import olci_L2
+from seaview.data_sources import olci_L2
 
 # Retrieve swaths for a date
 olci_L2.retrieve(dtm="2026-01-15")

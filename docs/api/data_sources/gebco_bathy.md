@@ -1,4 +1,4 @@
-# seastate.data_sources.gebco_bathy
+# seaview.data_sources.gebco_bathy
 
 GEBCO Bathymetry data access.
 
@@ -12,7 +12,7 @@ data from CEDA via OPeNDAP.
 ## Example Usage
 
 ```python
-from seastate.data_sources import gebco_bathy
+from seaview.data_sources import gebco_bathy
 
 # Open dataset (bathymetry is time-independent)
 ds = gebco_bathy.open_dataset()
@@ -27,7 +27,7 @@ gebco_bathy.retrieve(force=True)
 
 ## API Reference
 
-::: seastate.data_sources.gebco_bathy
+::: seaview.data_sources.gebco_bathy
     options:
       show_root_heading: false
       show_root_full_path: false

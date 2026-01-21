@@ -1,4 +1,4 @@
-# seastate.tilers.utils
+# seaview.tilers.utils
 
 Utility functions for tile generation.
 
@@ -10,7 +10,7 @@ contour data during tile generation.
 ## Example Usage
 
 ```python
-from seastate.tilers.utils import filter_small_contours
+from seaview.tilers.utils import filter_small_contours
 import matplotlib.pyplot as plt
 from matplotlib import tri
 
@@ -23,7 +23,7 @@ filter_small_contours(cs, min_vertices=100)
 
 ## API Reference
 
-::: seastate.tilers.utils
+::: seaview.tilers.utils
     options:
       show_root_heading: false
       show_root_full_path: false

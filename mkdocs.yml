@@ -1,8 +1,8 @@
-site_name: Seastate Documentation
-site_description: Documentation for the Seastate oceanographic data processing and tile generation system
-site_author: Seastate Team
-repo_url: https://github.com/your-org/seastate
-repo_name: seastate
+site_name: Seaview Documentation
+site_description: Documentation for the Seaview oceanographic data processing and tile generation system
+site_author: Seaview Team
+repo_url: https://github.com/your-org/seaview
+repo_name: seaview
 
 theme:
   name: material
@@ -86,29 +86,29 @@ nav:
     - Layer Configuration: user-guide/layer-config.md
   - API Reference:
     - Overview: api/index.md
-    - seastate: api/processor.md
-    - seastate.config: api/config.md
-    - seastate.tile: api/tile.md
-    - seastate.layer_config: api/layer_config.md
-    - seastate.area_definitions: api/area_definitions.md
-    - seastate.cli: api/cli.md
+    - seaview: api/processor.md
+    - seaview.config: api/config.md
+    - seaview.tile: api/tile.md
+    - seaview.layer_config: api/layer_config.md
+    - seaview.area_definitions: api/area_definitions.md
+    - seaview.cli: api/cli.md
     - Data Sources:
-      - seastate.data_sources.cmems_ssh: api/data_sources/cmems_ssh.md
-      - seastate.data_sources.ostia: api/data_sources/ostia.md
-      - seastate.data_sources.globcolour: api/data_sources/globcolour.md
-      - seastate.data_sources.gebco_bathy: api/data_sources/gebco_bathy.md
-      - seastate.data_sources.olci_L2: api/data_sources/olci_L2.md
+      - seaview.data_sources.cmems_ssh: api/data_sources/cmems_ssh.md
+      - seaview.data_sources.ostia: api/data_sources/ostia.md
+      - seaview.data_sources.globcolour: api/data_sources/globcolour.md
+      - seaview.data_sources.gebco_bathy: api/data_sources/gebco_bathy.md
+      - seaview.data_sources.olci_L2: api/data_sources/olci_L2.md
     - Readers:
-      - seastate.readers.copernicus_ssh: api/readers/copernicus_ssh.md
+      - seaview.readers.copernicus_ssh: api/readers/copernicus_ssh.md
     - Tilers:
-      - seastate.tilers.rectlinear: api/tilers/rectlinear.md
-      - seastate.tilers.utils: api/tilers/utils.md
+      - seaview.tilers.rectlinear: api/tilers/rectlinear.md
+      - seaview.tilers.utils: api/tilers/utils.md
     - Utilities:
       - shiptrack: api/shiptrack.md
 
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/your-org/seastate
+      link: https://github.com/your-org/seaview
 
-copyright: Copyright &copy; 2024-2026 Seastate Team
+copyright: Copyright &copy; 2024-2026 Seaview Team

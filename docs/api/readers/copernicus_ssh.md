@@ -1,4 +1,4 @@
-# seastate.readers.copernicus_ssh
+# seaview.readers.copernicus_ssh
 
 File handler for Copernicus Marine Service SSH NetCDF files.
 
@@ -26,7 +26,7 @@ print(sla)
 
 ## API Reference
 
-::: seastate.readers.copernicus_ssh
+::: seaview.readers.copernicus_ssh
     options:
       show_root_heading: false
       show_root_full_path: false

@@ -1,8 +1,8 @@
-# seastate.cli
+# seaview.cli
 
-Command-line interface for the Seastate processor.
+Command-line interface for the Seaview processor.
 
-::: seastate.cli
+::: seaview.cli
     options:
       show_root_heading: true
       show_root_full_path: false

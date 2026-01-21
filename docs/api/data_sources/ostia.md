@@ -1,4 +1,4 @@
-# seastate.data_sources.ostia
+# seaview.data_sources.ostia
 
 OSTIA Sea Surface Temperature data access.
 
@@ -13,7 +13,7 @@ from the Copernicus Marine Service.
 ## Example Usage
 
 ```python
-from seastate.data_sources import ostia
+from seaview.data_sources import ostia
 
 # Open dataset for a specific date
 ds = ostia.open_dataset(dtm="2026-01-15")
@@ -25,7 +25,7 @@ print(f"SST range: {float(sst_celsius.min()):.1f} to {float(sst_celsius.max()):.
 
 ## API Reference
 
-::: seastate.data_sources.ostia
+::: seaview.data_sources.ostia
     options:
       show_root_heading: false
       show_root_full_path: false

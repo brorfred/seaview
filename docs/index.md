@@ -1,6 +1,6 @@
-# Seastate Documentation
+# Seaview Documentation
 
-Welcome to the Seastate documentation. This system provides tools for processing oceanographic satellite data and generating slippy map tiles for web visualization.
+Welcome to the Seaview documentation. This system provides tools for processing oceanographic satellite data and generating slippy map tiles for web visualization.
 
 ## Features
 
@@ -22,19 +22,19 @@ Welcome to the Seastate documentation. This system provides tools for processing
 ## Quick Example
 
 ```python
-import seastate
+import seaview
 
 # Process tiles for yesterday
-seastate.yesterday()
+seaview.yesterday()
 
 # Process tiles for the last 7 days
-seastate.last_days(days=7)
+seaview.last_days(days=7)
 ```
 
 ## Architecture Overview
 
 ```
-seastate/
+seaview/
 ├── config.py           # Configuration management
 ├── tile.py             # Main tile generation interface
 ├── layer_config.py     # Layer configuration management

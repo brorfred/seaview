@@ -13,10 +13,10 @@ This guide will help you generate your first oceanographic map tiles.
 The simplest way to generate tiles is to process yesterday's data:
 
 ```python
-import seastate
+import seaview
 
 # Process all products (SSH, SST, Chlorophyll) for yesterday
-seastate.yesterday()
+seaview.yesterday()
 ```
 
 This will:
@@ -30,7 +30,7 @@ This will:
 ## Generate Tiles for a Specific Date
 
 ```python
-from seastate import tile
+from seaview import tile
 
 # Generate SSH tiles for a specific date
 tile.ssh("2026-01-15", verbose=True)
@@ -48,13 +48,13 @@ tile.all("2026-01-15", verbose=True)
 ## Generate Tiles for Multiple Days
 
 ```python
-import seastate
+import seaview
 
 # Process the last 7 days
-seastate.last_days(days=7)
+seaview.last_days(days=7)
 
 # Process the last 30 days
-seastate.last_days(days=30)
+seaview.last_days(days=30)
 ```
 
 ## Manual Data Access
@@ -62,7 +62,7 @@ seastate.last_days(days=30)
 You can also access the data directly without generating tiles:
 
 ```python
-from seastate.data_sources import cmems_ssh, ostia, globcolour
+from seaview.data_sources import cmems_ssh, ostia, globcolour
 
 # Open SSH dataset
 ds_ssh = cmems_ssh.open_dataset(dtm="2026-01-15")
@@ -106,7 +106,7 @@ mapper.save_map(
 If you've configured remote sync, you can manually trigger synchronization:
 
 ```python
-from seastate import tile, layer_config
+from seaview import tile, layer_config
 
 # Sync tiles to remote server
 tile.sync()

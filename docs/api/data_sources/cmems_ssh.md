@@ -1,4 +1,4 @@
-# seastate.data_sources.cmems_ssh
+# seaview.data_sources.cmems_ssh
 
 CMEMS Sea Surface Height (SSH) data access.
 
@@ -12,7 +12,7 @@ data from the Copernicus Marine Service (CMEMS).
 ## Example Usage
 
 ```python
-from seastate.data_sources import cmems_ssh
+from seaview.data_sources import cmems_ssh
 
 # Open dataset for a specific date
 ds = cmems_ssh.open_dataset(dtm="2026-01-15")
@@ -27,7 +27,7 @@ cmems_ssh.retrieve(dtm="2026-01-15", force=True)
 
 ## API Reference
 
-::: seastate.data_sources.cmems_ssh
+::: seaview.data_sources.cmems_ssh
     options:
       show_root_heading: false
       show_root_full_path: false

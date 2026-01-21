@@ -1,6 +1,6 @@
 # Overview
 
-Seastate is a Python-based system for processing oceanographic satellite data and generating web-ready map tiles. It integrates with major oceanographic data providers and produces slippy map tiles compatible with Leaflet, OpenLayers, and other web mapping libraries.
+Seaview is a Python-based system for processing oceanographic satellite data and generating web-ready map tiles. It integrates with major oceanographic data providers and produces slippy map tiles compatible with Leaflet, OpenLayers, and other web mapping libraries.
 
 ## System Architecture
 
@@ -43,7 +43,7 @@ Seastate is a Python-based system for processing oceanographic satellite data an
 
 ## Key Components
 
-### Data Sources (`seastate.data_sources`)
+### Data Sources (`seaview.data_sources`)
 
 Modules for retrieving oceanographic data from remote services:
 
@@ -53,7 +53,7 @@ Modules for retrieving oceanographic data from remote services:
 - **gebco_bathy**: GEBCO bathymetry data from CEDA
 - **olci_L2**: Sentinel-3 OLCI Level-2 swath data from EUMETSAT
 
-### Tile Generation (`seastate.tile`, `seastate.tilers`)
+### Tile Generation (`seaview.tile`, `seaview.tilers`)
 
 The tile generation system converts gridded data into slippy map tiles:
 
@@ -61,7 +61,7 @@ The tile generation system converts gridded data into slippy map tiles:
 - **rectlinear.py**: Main tile generator using triangulation for smooth rendering
 - **utils.py**: Utility functions for contour filtering and processing
 
-### Configuration (`seastate.config`)
+### Configuration (`seaview.config`)
 
 Dynaconf-based configuration with support for:
 
@@ -70,7 +70,7 @@ Dynaconf-based configuration with support for:
 - Secrets management
 - Environment variable overrides
 
-### Layer Configuration (`seastate.layer_config`)
+### Layer Configuration (`seaview.layer_config`)
 
 Manages the JSON configuration file that defines:
 

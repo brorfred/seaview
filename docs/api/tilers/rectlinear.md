@@ -1,4 +1,4 @@
-# seastate.tilers.rectlinear
+# seaview.tilers.rectlinear
 
 Slippy Tile Generator for Satpy Scenes.
 
@@ -11,7 +11,7 @@ and Delaunay triangulation for smooth contour rendering.
 ## Example Usage
 
 ```python
-from seastate.tilers.rectlinear import SlippyTileGenerator
+from seaview.tilers.rectlinear import SlippyTileGenerator
 import numpy as np
 
 # Create generator with geographic bounds
@@ -39,7 +39,7 @@ generator.generate_tiles(
 
 ## API Reference
 
-::: seastate.tilers.rectlinear
+::: seaview.tilers.rectlinear
     options:
       show_root_heading: false
       show_root_full_path: false

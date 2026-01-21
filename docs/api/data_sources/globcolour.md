@@ -1,4 +1,4 @@
-# seastate.data_sources.globcolour
+# seaview.data_sources.globcolour
 
 GlobColour chlorophyll data access.
 
@@ -12,7 +12,7 @@ chlorophyll-a concentration data from the Copernicus Marine Service.
 ## Example Usage
 
 ```python
-from seastate.data_sources import globcolour
+from seaview.data_sources import globcolour
 
 # Open dataset for a specific date
 ds = globcolour.open_dataset(dtm="2026-01-15")
@@ -24,7 +24,7 @@ print(f"Chl range: {float(chl.min()):.3f} to {float(chl.max()):.1f} mg/m³")
 
 ## API Reference
 
-::: seastate.data_sources.globcolour
+::: seaview.data_sources.globcolour
     options:
       show_root_heading: false
       show_root_full_path: false

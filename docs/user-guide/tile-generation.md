@@ -1,13 +1,13 @@
 # Tile Generation
 
-Seastate generates slippy map tiles compatible with web mapping libraries like Leaflet and OpenLayers.
+Seaview generates slippy map tiles compatible with web mapping libraries like Leaflet and OpenLayers.
 
 ## High-Level Interface
 
-The `seastate.tile` module provides a simple interface for tile generation:
+The `seaview.tile` module provides a simple interface for tile generation:
 
 ```python
-from seastate import tile
+from seaview import tile
 
 # Generate SSH tiles
 tile.ssh("2026-01-15", verbose=True)
@@ -75,7 +75,7 @@ Default visualization:
 For more control, use the `SlippyTileGenerator` class directly:
 
 ```python
-from seastate.tilers.rectlinear import SlippyTileGenerator
+from seaview.tilers.rectlinear import SlippyTileGenerator
 import numpy as np
 
 # Create generator with geographic bounds
@@ -108,7 +108,7 @@ generator.generate_tiles(
 Uses Delaunay triangulation for smooth filled contours:
 
 ```python
-from seastate.tilers.rectlinear import SlippyTileGenerator
+from seaview.tilers.rectlinear import SlippyTileGenerator
 
 generator = SlippyTileGenerator(min_lat=45, max_lat=65, min_lon=-10, max_lon=30)
 generator.generate_tiles(data, lats, lons, output_dir, zoom_levels)
@@ -124,7 +124,7 @@ generator.generate_tiles(data, lats, lons, output_dir, zoom_levels)
 Uses Satpy's resampling for web Mercator projection:
 
 ```python
-from seastate.tilers.chatgpt_satpy import satpy_ssh_to_tiles
+from seaview.tilers.chatgpt_satpy import satpy_ssh_to_tiles
 
 satpy_ssh_to_tiles(
     scene,                    # Satpy Scene object
@@ -142,7 +142,7 @@ satpy_ssh_to_tiles(
 Resamples data for each tile individually for perfect alignment:
 
 ```python
-from seastate.tilers.ssh_tiles_fast import satpy_ssh_to_tiles_fixed
+from seaview.tilers.ssh_tiles_fast import satpy_ssh_to_tiles_fixed
 
 satpy_ssh_to_tiles_fixed(
     scene,
@@ -190,7 +190,7 @@ tile.ssh("2026-01-15", force=True)
 Check if tiles exist:
 
 ```python
-from seastate.tile import tiles_exists
+from seaview.tile import tiles_exists
 
 if tiles_exists("ssh", "2026-01-15"):
     print("SSH tiles already exist")

@@ -1,4 +1,4 @@
-# Seastate - A Cruise Support Processor
+# Seaview - A Cruise Support Processor
 
 [![Documentation](https://img.shields.io/badge/docs-mkdocs-blue)](docs/)
 
@@ -24,8 +24,8 @@ A Python package for generating slippy map tiles from oceanographic satellite da
 
 ```bash
 # Clone the repository
-git clone https://github.com/brorfred/seastate.git
-cd seastate
+git clone https://github.com/brorfred/seaview.git
+cd seaview
 
 # Create virtual environment and install
 uv venv
@@ -36,8 +36,8 @@ uv pip install -e ".[dev]"
 ### Using pip
 
 ```bash
-git clone https://github.com/brorfred/seastate.git
-cd seastate
+git clone https://github.com/brorfred/seaview.git
+cd seaview
 pip install -e ".[dev]"
 ```
 
@@ -46,8 +46,8 @@ pip install -e ".[dev]"
 This project also supports [pixi](https://pixi.sh) for conda-based dependency management (recommended for complex geospatial dependencies).
 
 ```bash
-git clone https://github.com/brorfred/seastate.git
-cd seastate
+git clone https://github.com/brorfred/seaview.git
+cd seaview
 pixi install
 ```
 
@@ -63,7 +63,7 @@ pixi install
 ## Quick Start
 
 ```python
-from seastate import tile
+from seaview import tile
 
 # Generate tiles for a specific date
 tile.all("2026-01-15")
@@ -100,17 +100,17 @@ remote_tile_dir = "@format {this.remote_html_dir}/tiles/{this.cruise_name}"
 ```
 
 Settings are loaded from multiple locations (in order of precedence):
-1. `/etc/seastate/settings.toml` (system-wide)
-2. `~/.config/seastate/settings.toml` (user)
+1. `/etc/seaview/settings.toml` (system-wide)
+2. `~/.config/seaview/settings.toml` (user)
 3. `./settings.toml` (project directory)
 
-Environment variables prefixed with `SEASTATE_` will override settings.
+Environment variables prefixed with `SEAVIEW_` will override settings.
 
 ## Project Structure
 
 ```
-seastate/
-├── src/seastate/
+seaview/
+├── src/seaview/
 │   ├── __init__.py
 │   ├── config.py              # Dynaconf settings loader
 │   ├── cli.py                 # Command-line interface
@@ -143,7 +143,7 @@ seastate/
 Main module for generating tiles.
 
 ```python
-from seastate import tile
+from seaview import tile
 
 # Generate all products for a date
 tile.all(dtm, verbose=False)
@@ -167,7 +167,7 @@ tile.sync()
 Manages the `layer_config.json` file for web map layer configuration.
 
 ```python
-from seastate import layer_config
+from seaview import layer_config
 
 # Update date ranges from existing tiles
 layer_config.update()
@@ -184,7 +184,7 @@ layer_config.sync()
 Geographic projection and grid utilities.
 
 ```python
-from seastate import area_definitions
+from seaview import area_definitions
 
 # Get Web Mercator resolution for a zoom level
 resolution = area_definitions.zoom_to_resolution_m(zoom=5)
@@ -204,7 +204,7 @@ area = area_definitions.nasa(resolution="4km")
 Low-level tile generation class.
 
 ```python
-from seastate.tilers.rectlinear import SlippyTileGenerator
+from seaview.tilers.rectlinear import SlippyTileGenerator
 
 generator = SlippyTileGenerator(
     min_lat=-45,
@@ -309,7 +309,7 @@ Process multiple days:
 
 ```python
 import pandas as pd
-from seastate import tile
+from seaview import tile
 
 # Generate tiles for a date range
 for date in pd.date_range("2026-01-01", "2026-01-15"):

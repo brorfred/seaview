@@ -1,18 +1,18 @@
 # Configuration
 
-Seastate uses [Dynaconf](https://www.dynaconf.com/) for configuration management, supporting multiple configuration files and environment-based settings.
+Seaview uses [Dynaconf](https://www.dynaconf.com/) for configuration management, supporting multiple configuration files and environment-based settings.
 
 ## Configuration File Locations
 
 Settings are loaded from multiple locations in order of increasing priority:
 
-1. `/etc/seastate/settings.toml` - Global system settings
-2. `/etc/seastate/.secrets.toml` - Global secrets
-3. `~/.config/seastate/settings.toml` - User settings
-4. `~/.config/seastate/.secrets.toml` - User secrets
+1. `/etc/seaview/settings.toml` - Global system settings
+2. `/etc/seaview/.secrets.toml` - Global secrets
+3. `~/.config/seaview/settings.toml` - User settings
+4. `~/.config/seaview/.secrets.toml` - User secrets
 5. `./settings.toml` - Project settings
 6. `./.secrets.toml` - Project secrets
-7. `SEASTATE_SETTINGS_FILE_FOR_DYNACONF` - Environment variable path
+7. `SEAVIEW_SETTINGS_FILE_FOR_DYNACONF` - Environment variable path
 
 Later files override earlier ones.
 
@@ -67,12 +67,12 @@ cmems_password = "your_password"
 
 ## Environment Variables
 
-You can also set configuration via environment variables with the `SEASTATE_` prefix:
+You can also set configuration via environment variables with the `SEAVIEW_` prefix:
 
 ```bash
-export SEASTATE_LAT1=45.0
-export SEASTATE_LAT2=65.0
-export SEASTATE_CMEMS_LOGIN=your_username
+export SEAVIEW_LAT1=45.0
+export SEAVIEW_LAT2=65.0
+export SEAVIEW_CMEMS_LOGIN=your_username
 ```
 
 ## Multiple Environments
@@ -98,7 +98,7 @@ remote_sync = true
 Switch environments in code:
 
 ```python
-from seastate.config import change_env
+from seaview.config import change_env
 
 # Switch to development environment
 change_env("development")
@@ -107,7 +107,7 @@ change_env("development")
 ## Verifying Configuration
 
 ```python
-from seastate import config
+from seaview import config
 
 # Print all loaded settings
 print("Configuration files:", config.settings.loaded_files)

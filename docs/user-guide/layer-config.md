@@ -16,7 +16,7 @@ The `layer_config.json` file defines:
 Generate a new configuration file:
 
 ```python
-from seastate.layer_config import generate_file
+from seaview.layer_config import generate_file
 
 # Generate in current directory
 generate_file()
@@ -33,13 +33,13 @@ generate_file(remote_tile_url="https://custom.tiles.com/tiles")
 After generating new tiles, update the date ranges:
 
 ```python
-from seastate.layer_config import update, find_first_last_tile_dates
+from seaview.layer_config import update, find_first_last_tile_dates
 
 # Auto-detect date ranges from tile directories
 update("layer_config.json")
 
 # Or manually specify dates
-from seastate.layer_config import update_date_ranges
+from seaview.layer_config import update_date_ranges
 
 layer_dates = {
     'ssh': {'start': '2026-01-01', 'end': '2026-01-15'},
@@ -54,7 +54,7 @@ update_date_ranges('layer_config.json', layer_dates=layer_dates)
 Sync the configuration to your remote server:
 
 ```python
-from seastate.layer_config import sync
+from seaview.layer_config import sync
 
 # Generate, update, and sync in one call
 sync()
@@ -179,7 +179,7 @@ Set up a cron job to automatically process and sync:
 
 ```bash
 # Run daily at 6 AM
-0 6 * * * cd /path/to/cruise && python -c "import seastate; seastate.yesterday; yesterday()"
+0 6 * * * cd /path/to/cruise && python -c "import seaview; seaview.yesterday; yesterday()"
 ```
 
 This will:

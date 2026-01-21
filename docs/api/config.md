@@ -1,8 +1,8 @@
-# seastate.config
+# seaview.config
 
-Configuration management for Seastate using Dynaconf.
+Configuration management for Seaview using Dynaconf.
 
-::: seastate.config
+::: seaview.config
     options:
       show_root_heading: true
       show_root_full_path: false

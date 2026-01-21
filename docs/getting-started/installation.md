@@ -9,12 +9,12 @@
 
 ## Installation with Pixi
 
-The recommended way to install Seastate is using [Pixi](https://pixi.sh):
+The recommended way to install Seaview is using [Pixi](https://pixi.sh):
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/seastate.git
-cd seastate
+git clone https://github.com/your-org/seaview.git
+cd seaview
 
 # Install with pixi
 pixi install
@@ -26,8 +26,8 @@ Alternatively, you can install using pip:
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/seastate.git
-cd seastate
+git clone https://github.com/your-org/seaview.git
+cd seaview
 
 # Create a virtual environment
 python -m venv venv
@@ -60,7 +60,7 @@ The main dependencies include:
 After installation, verify everything works:
 
 ```python
-from seastate import config
+from seaview import config
 
 # Check loaded configuration files
 print("Loaded files:", config.settings.loaded_files)

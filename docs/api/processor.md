@@ -1,8 +1,8 @@
-# seastate
+# seaview
 
-Main entry points for Seastate.
+Main entry points for Seaview.
 
-::: seastate
+::: seaview
     options:
       show_root_heading: true
       show_root_full_path: false
