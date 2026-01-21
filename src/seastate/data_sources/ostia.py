@@ -58,7 +58,7 @@ def filename(dtm="2025-06-03"):
     return f"copernicus_OSTIA_{dtm.date()}.nc"
 
 
-def open_dataset(dtm="2025-06-03", force=False):
+def open_dataset(dtm="2025-06-03", _pause=0, _retry=0, force=False):
     """Open OSTIA SST dataset for a given date.
 
     Downloads the data if not already cached locally.
@@ -76,9 +76,18 @@ def open_dataset(dtm="2025-06-03", force=False):
         Dataset containing SST variables.
     """
     fn = DATADIR / filename(dtm=dtm)
-    if not fn.is_file():
+    if force or not fn.is_file():
         retrieve(dtm=dtm, force=force)
-    return xr.open_dataset(DATADIR / filename(dtm=dtm))
+    if _retry > 3:
+        raise OSError(f"Failed to open {fn} after {_retry} attempts.")
+    if _retry > 0:
+        vprint("Failed to open the file, will try again")
+    time.sleep(_pause)
+    try:
+        ds = xr.open_dataset(fn, engine="h5netcdf")
+    except (OSError,):
+        ds = open_dataset(dtm=dtm, _pause=5, _retry=_retry+1)
+    return ds
 
 
 def open_scene(dtm="2025-06-03", data_var="sla"):

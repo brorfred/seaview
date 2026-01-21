@@ -21,10 +21,10 @@ def update(
 
     if env.lower() != "default":
         seastate.config.change_env(env)
-    print(env)
-    #seastate.today(force=False, sync=False)
-    #seastate.yesterday(force=True, sync=sync)
-    #
+        typer.echo(f"Using environment: {env}")
+    seastate.today(force=False, sync=False)
+    seastate.yesterday(force=True, sync=sync)
+
 
 @app.callback()
 def callback():

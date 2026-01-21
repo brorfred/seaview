@@ -9,6 +9,7 @@ https://data.marine.copernicus.eu/product/SEALEVEL_GLO_PHY_L4_NRT_008_046/descri
 """
 import pathlib
 from concurrent.futures import ThreadPoolExecutor
+import time
 
 import pandas as pd
 import satpy
@@ -55,7 +56,7 @@ def filename(dtm="2025-06-03"):
     return f"copernicus_SSH_{dtm.date()}.nc"
 
 
-def open_dataset(dtm="2025-06-03"):
+def open_dataset(dtm="2025-06-03", _pause=0, _retry=0, force=False):
     """Open SSH dataset for a given date.
 
     Downloads the data if not already cached locally.
@@ -71,10 +72,18 @@ def open_dataset(dtm="2025-06-03"):
         Dataset containing SSH variables (sla, adt, ugos, vgos).
     """
     fn = DATADIR / filename(dtm=dtm)
-    if not fn.is_file():
-        retrieve(dtm=dtm)
-    return xr.open_dataset(DATADIR / filename(dtm=dtm))
-
+    if force or not fn.is_file():
+        retrieve(dtm=dtm, force=force)
+    if _retry > 3:
+        raise OSError(f"Failed to open {fn} after {_retry} attempts.")
+    if _retry > 0:
+        vprint("Failed to open the file, will try again")
+    time.sleep(_pause)
+    try:
+        ds = xr.open_dataset(fn, engine="h5netcdf")
+    except (OSError,):
+        ds = open_dataset(dtm=dtm, _pause=5, _retry=_retry+1)
+    return ds
 
 def open_scene(dtm="2025-06-03", data_var="sla"):
     """Open SSH data as a Satpy Scene.
