@@ -36,6 +36,7 @@ sysrsync = ">=1.1.1,<2"
 pytest = ">=9.0.2,<10"
 cmap = ">=0.7.0,<0.8"
 cmasher = ">=1.9.2,<2"
+typer = ">=0.21.1,<0.22"
 
 [pypi-dependencies]
 seastate = { path = ".", editable = true }

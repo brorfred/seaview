@@ -42,6 +42,10 @@ dependencies = [
     "sysrsync>=1.1.0",
     "tqdm>=4.65.0",
     "fsspec>=2023.1.0",
+    "dynaconf>=3.2.12",
+    "cmasher>=1.9.2",
+    "jinja2>=3.1.6",
+    "typer>=0.21.1",
 ]
 
 [project.optional-dependencies]
@@ -85,3 +89,7 @@ dev-dependencies = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
 ]
+
+[project.scripts]
+sea = "seastate.cli:app"
+sea-update = "seastate.cli:update"
