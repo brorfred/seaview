@@ -51,6 +51,31 @@ cd seaview
 pixi install
 ```
 
+### Using Podman/Docker
+
+Run seaview in a container using Podman (or Docker):
+
+```bash
+# Build the container image
+podman build -t seaview .
+
+# Run interactively with IPython
+podman run --rm -it seaview pixi run ipython
+
+# Run a specific command
+podman run --rm seaview pixi run python -c "from seaview import tile; tile.all('2026-01-15')"
+
+# Mount local directories for data persistence
+podman run --rm -it \
+    -v ~/.config/seaview:/root/.config/seaview:ro \
+    -v /path/to/data:/data \
+    seaview pixi run ipython
+```
+
+The container uses pixi for dependency management and includes all required geospatial libraries.
+
+**Note:** Replace `podman` with `docker` if using Docker instead.
+
 ### Prerequisites
 
 - Python 3.11+

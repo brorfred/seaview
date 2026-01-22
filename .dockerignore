@@ -1,0 +1,9 @@
+slask
+__pycache__
+*.pyc
+.git
+.pixi
+.pytest_cache
+*.egg-info
+.netrc
+#.secrets.*
