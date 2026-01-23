@@ -17,6 +17,7 @@ import satpy
 import xarray as xr
 import copernicusmarine
 
+from ..utils import vprint
 from seaview.area_definitions import rectlinear as rectlin_area
 from seaview import config
 settings = config.settings
@@ -26,19 +27,6 @@ DATADIR.mkdir(parents=True, exist_ok=True)
 
 DATASET_ID = "cmems_obs-oc_glo_bgc-plankton_nrt_l3-multi-4km_P1D"
 filename_prefix = "GLOBCOLOUR"
-
-
-
-def vprint(text):
-    """Print text if verbose mode is enabled.
-
-    Parameters
-    ----------
-    text : str
-        Text to print.
-    """
-    settings.get("verbose"):
-        print(text)
 
 
 def filename(dtm="2025-06-03"):

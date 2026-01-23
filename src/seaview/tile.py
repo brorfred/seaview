@@ -9,18 +9,15 @@ import pathlib
 import numpy as np
 import pandas as pd
 import sysrsync
+from copernicusmarine import CoordinatesOutOfDatasetBounds
 
 from .tilers import rectlinear as rectlin_tiler
 from .data_sources import cmems_ssh, ostia as ostia_sst
 from .data_sources import globcolour as cmems_globcolour
 from .data_sources import gebco_bathy
+from .utils import vprint
 from . import config
 settings = config.settings
-from copernicusmarine import CoordinatesOutOfDatasetBounds
-
-def vprint(string):
-    if settings.get("verbose"):
-        print(string)
 
 
 def tiles_exists(id, dtm):

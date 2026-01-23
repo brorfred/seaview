@@ -18,18 +18,7 @@ import mercantile
 import io
 
 from .utils import filter_small_contours
-
-
-def vprint(string):
-    """Print string if verbose mode is enabled.
-
-    Parameters
-    ----------
-    string : str
-        Text to print.
-    """
-    if settings.get("verbose"):
-        print(string)
+from ..utils import vprint
 
 
 class SlippyTileGenerator:

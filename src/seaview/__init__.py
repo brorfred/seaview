@@ -8,9 +8,7 @@ import pandas as pd
 from . import config, tile, layer_config
 settings = config.settings
 
-def vprint(string):
-    if settings.get("verbose"):
-        print(string)
+from .utils import vprint
 
 class DateInFutureError(Exception):
     """Exception raised when a requested date is in the future.

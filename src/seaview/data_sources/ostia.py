@@ -19,24 +19,13 @@ import satpy
 import xarray as xr
 import copernicusmarine
 
+from ..utils import vprint
 from seaview.area_definitions import rectlinear as rectlin_area
 from seaview import config
 settings = config.settings
 
 DATADIR = pathlib.Path(settings["data_dir"] + "/copernicus/OSTIA")
 DATADIR.mkdir(parents=True, exist_ok=True)
-
-
-def vprint(text):
-    """Print text if verbose mode is enabled.
-
-    Parameters
-    ----------
-    text : str
-        Text to print.
-    """
-    if settings.get("verbose"):
-        print(text)
 
 
 def filename(dtm="2025-06-03"):

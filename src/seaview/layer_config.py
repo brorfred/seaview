@@ -11,21 +11,9 @@ import pandas as pd
 import sysrsync
 from jinja2 import Template
 
+from .utils import vprint
 from . import config
 settings = config.settings
-
-
-def vprint(text):
-    """Print text if verbose mode is enabled.
-
-    Parameters
-    ----------
-    text : str
-        Text to print.
-    """
-    if settings.get("verbose"):
-        print(text)
-
 
 def sync():
     """Generate and sync layer configuration to remote server.
