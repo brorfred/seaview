@@ -252,24 +252,40 @@ def sync(dtm=None):
 
     Uses sysrsync to transfer tiles from the local tile directory
     to the configured remote server.
-    """
-    def rsync(local, remote):
-        sysrsync.run(source=local,
-                     destination=remote,
-                     destination_ssh='tvarminne',
-                     options=['-a'],
-                     sync_source_contents=True,
-                     strict=True,
-                     )
 
+    Generate a key without a password using
+    ssh-keygen -f /home/bror/.config/seaview/sea_id_ed25519
+    """
+    def rsync(local, remote, key=None):
+        try:
+            sysrsync.run(source=local,
+                        destination=remote,
+                        destination_ssh='tvarminne',
+                        options=['-a'],
+                        sync_source_contents=True,
+                        strict=True,
+                        private_key=key
+                        )
+        except Exception as e:
+            print(e)
+            raise(RuntimeError)
+    key = pathlib.Path.cwd() / "sea_id_ed25519"
+    if not key.is_file():
+        key  = pathlib.Path.home() / ".ssh/sea_id_ed25519"
+    if not key.is_file():
+        key  = pathlib.Path.home() / ".config/seaview/sea_id_ed25519"
+    if not key.is_file():
+        print("Can't find an ssh key file, will use the default.")
+        key = None
+    vprint(f"key file used:{key}")
     if dtm is not None:
         dtm = pd.to_datetime(dtm)
         local_paths = pathlib.Path(settings.get("tile_dir")).glob(f"*/{dtm.date()}")
 
         for local in local_paths:
             remote = pathlib.Path(settings.get("remote_tile_dir")) / "/".join(local.parts[-2:])
-            rsync(str(local), str(remote))
+            rsync(str(local), str(remote), key)
         pass
     else:
-        rsync(settings["tile_dir"], settings["remote_tile_dir"])
+        rsync(settings["tile_dir"], settings["remote_tile_dir"], key)
     settings.set("tiles_updated", False)
