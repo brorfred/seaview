@@ -76,8 +76,7 @@ def yesterday(force=False, sync=True, verbose=True):
     dtm = pd.Timestamp.now().normalize()-pd.Timedelta(1,"D")
     vprint(f"\n\nProcess Yesterday's date: {dtm}")
     tile.all(dtm, force=False, verbose=verbose)
-    print(settings.get("remote_sync"), settings.get("tiles_updated"), sync)
-    if True: #settings.get("remote_sync") and settings.get("tiles_updated") and sync:
+    if settings.get("remote_sync") and settings.get("tiles_updated") and sync:
         print("Sync tiles")
         tile.sync(dtm)
         print(f"{pd.Timestamp.now()} Sync Layer config")
