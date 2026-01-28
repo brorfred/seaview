@@ -22,14 +22,23 @@ def sync():
     Generates a new layer configuration file, updates it with current
     tile date ranges, and syncs to the remote server via rsync.
     """
-    vprint("Sync layer_config file")
+    print("Sync layer_config file")
     tmp_dir = pathlib.Path("/tmp")
     generate_file(config_file_path=tmp_dir)
     update(json_file_path=tmp_dir / "layer_config.json")
+    key = pathlib.Path.cwd() / "sea_id_ed25519"
+    if not key.is_file():
+        key  = pathlib.Path.home() / ".ssh/sea_id_ed25519"
+    if not key.is_file():
+        key  = pathlib.Path.home() / ".config/seaview/sea_id_ed25519"
+    if not key.is_file():
+        print("Can't find an ssh key file, will use the default.")
+        key = None
     payload = dict(source=str(tmp_dir / "layer_config.json"),
                  destination=settings.get("remote_html_dir"),
                  destination_ssh=settings.get("remote_server"),
                  options=['-a'],
+                 private_key=key,
                  strict=True,)
     sysrsync.run(**payload)
     payload["destination"] = payload["destination"] + "/devel/"
@@ -57,9 +66,9 @@ def find_first_last_tile_dates():
     layer_dates = dict()
     for layer_name in settings.get("updated_tiles"):
         layer = tilepath / layer_name
-        vprint(layer)
+        vprint(layer, level=1)
         date_range = pd.to_datetime([d.name for d in layer.glob("*")])
-        vprint(date_range)
+        vprint(date_range, level=1)
         dtm1 = date_range.min()
         dtm2 = date_range.max()
         ddtm = pd.Timedelta(min((dtm2-dtm1).days, settings.get("max_tile_days")-1), "D")
