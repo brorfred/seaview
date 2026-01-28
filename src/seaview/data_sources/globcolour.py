@@ -19,7 +19,7 @@ import xarray as xr
 import copernicusmarine
 
 from ..utils import vprint
-from seaview import DataObjectError
+from seaview.utils import DataObjectError
 from seaview.area_definitions import rectlinear as rectlin_area
 from seaview import config
 settings = config.settings

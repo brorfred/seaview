@@ -14,12 +14,13 @@ from concurrent.futures import ThreadPoolExecutor
 import copernicusmarine
 import time
 
+import numpy as np
 import pandas as pd
 import satpy
 import xarray as xr
 import copernicusmarine
 
-from ..utils import vprint
+from ..utils import vprint, DataObjectError
 from seaview.area_definitions import rectlinear as rectlin_area
 from seaview import config
 settings = config.settings
@@ -74,6 +75,10 @@ def open_dataset(dtm="2025-06-03", _pause=0, _retry=0, force=False):
         ds = xr.open_dataset(fn, engine="h5netcdf")
     except (OSError,):
         ds = open_dataset(dtm=dtm, _pause=5, _retry=_retry+1)
+    if np.nansum(ds.analysed_sst) == 0:
+        fn.unlink()
+        raise DataObjectError(f"The CHL data variable in {fn}" +
+                                  " is empty, file deleted.")
     return ds
 
 

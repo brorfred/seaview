@@ -8,16 +8,7 @@ import pandas as pd
 from . import config, tile, layer_config
 settings = config.settings
 
-from .utils import vprint
-
-class DataObjectError(BaseException):
-    """Exception raised when the opening of a data object fails.
-
-    This error is raised when attempting to retireve or open a data
-    object. The reason can both be that the retreival failed or that
-    the underlying fiel is corrupt.
-    """
-    pass
+from .utils import vprint, DataObjectError
 
 
 def day(dtm, force=False, verbose=False):
