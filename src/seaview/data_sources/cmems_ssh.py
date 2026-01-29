@@ -11,11 +11,13 @@ import pathlib
 from concurrent.futures import ThreadPoolExecutor
 import time
 
+import numpy as np
 import pandas as pd
 import satpy
 import xarray as xr
 import copernicusmarine
 
+from ..utils import vprint, DataObjectError
 from ..utils import vprint
 from ..area_definitions import rectlinear as rectlin_area
 from .. import config
@@ -69,6 +71,10 @@ def open_dataset(dtm="2025-06-03", _pause=0, _retry=0, force=False):
         ds = xr.open_dataset(fn, engine="h5netcdf")
     except (OSError,):
         ds = open_dataset(dtm=dtm, _pause=5, _retry=_retry+1)
+    if np.nansum(ds.sla) == 0:
+        fn.unlink()
+        raise DataObjectError(f"The CHL data variable in {fn}" +
+                               " is empty, file deleted.")
     return ds
 
 def open_scene(dtm="2025-06-03", data_var="sla"):
