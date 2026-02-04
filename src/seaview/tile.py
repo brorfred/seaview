@@ -284,7 +284,9 @@ def sync(dtm=None):
 
         for local in local_paths:
             remote = pathlib.Path(settings.get("remote_tile_dir")) / "/".join(local.parts[-2:])
-            rsync(str(local), str(remote), key)
+            vprint(f"Local path: {local}", 10)
+            vprint(f"remote path: {remote}", 10)
+            rsync(str(local),str(remote), key)
         pass
     else:
         rsync(settings["tile_dir"], settings["remote_tile_dir"], key)
