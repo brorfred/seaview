@@ -1,4 +1,6 @@
 
+import inspect
+
 from pyproj import Transformer
 
 import numpy as np
@@ -6,6 +8,7 @@ from typing import Tuple, Optional, List
 
 from . import config
 settings = config.settings
+
 
 class DataObjectError(BaseException):
     """Exception raised when the opening of a data object fails.
@@ -18,7 +21,9 @@ class DataObjectError(BaseException):
 
 
 
-def vprint(string, level=3):
+def vprint(string, level=10):
+    frame = inspect.currentframe().f_back
+    name = frame.f_globals['__name__']
     if settings.get("verbose") and (level>=3):
         print(string)
 
