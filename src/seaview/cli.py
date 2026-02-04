@@ -22,7 +22,7 @@ def update(
     if env.lower() != "default":
         seaview.config.change_env(env)
         typer.echo(f"Using environment: {env}")
-    seaview.today(force=False, sync=False)
+    seaview.today(force=False, sync=sync)
     seaview.yesterday(force=True, sync=sync)
 
 
