@@ -19,8 +19,11 @@ from ..area_definitions import rectlinear as rectlin_area
 from .. import config
 settings = config.settings
 
-DATADIR = pathlib.Path(settings["data_dir"] + "/GEBCO")
-DATADIR.mkdir(parents=True, exist_ok=True)
+
+def datadir(dtm=None):
+    path = pathlib.Path(settings.data_dir) / "GEBCO"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
 
 
 VERBOSE = True
@@ -73,7 +76,7 @@ def open_dataset(dtm=None, step=5, mask_land=True):
     xarray.Dataset
         Dataset containing the elevation variable.
     """
-    fn = DATADIR / filename(dtm=dtm)
+    fn = datadir() / filename(dtm=dtm)
     if not fn.is_file():
         retrieve(dtm=dtm)
     lat_slice = slice(None, None, step)
@@ -100,7 +103,7 @@ def open_scene(dtm=None, data_var="elevation"):
     satpy.Scene
         Satpy Scene object with loaded bathymetry data.
     """
-    fn = DATADIR / filename(dtm=dtm)
+    fn = datadir() / filename(dtm=dtm)
     vprint(fn)
     if not fn.is_file():
         retrieve(dtm=dtm)
@@ -121,7 +124,7 @@ def retrieve(dtm=None, force=False, parallel=True):
     parallel : bool, optional
         Unused parameter for API compatibility, by default True.
     """
-    fn = DATADIR / filename()
+    fn = datadir() / filename()
     if fn.is_file() and not force:
         return
     elif force:

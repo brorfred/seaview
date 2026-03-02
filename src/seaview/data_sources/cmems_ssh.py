@@ -23,8 +23,12 @@ from ..area_definitions import rectlinear as rectlin_area
 from .. import config
 settings = config.settings
 
-DATADIR = pathlib.Path(settings["data_dir"] + "/copernicus/SSH")
-DATADIR.mkdir(parents=True, exist_ok=True)
+
+def datadir(dtm=None):
+    path = pathlib.Path(settings.data_dir) / "copernicus/SSH"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
 
 def filename(dtm="2025-06-03"):
     """Generate filename for SSH data file.
@@ -58,7 +62,7 @@ def open_dataset(dtm="2025-06-03", _pause=0, _retry=0, force=False):
     xarray.Dataset
         Dataset containing SSH variables (sla, adt, ugos, vgos).
     """
-    fn = DATADIR / filename(dtm=dtm)
+    fn = datadir() / filename(dtm=dtm)
     vprint(f"SSH Data file: {fn}")
     if force or not fn.is_file():
         retrieve(dtm=dtm, force=force)
@@ -92,7 +96,7 @@ def open_scene(dtm="2025-06-03", data_var="sla"):
     satpy.Scene
         Satpy Scene object with loaded SSH variables.
     """
-    fn = DATADIR / filename(dtm=dtm)
+    fn = datadir() / filename(dtm=dtm)
     vprint(fn)
     if not fn.is_file():
         retrieve(dtm=dtm)
@@ -113,10 +117,10 @@ def retrieve(dtm="2025-06-03", force=False, parallel=True):
     parallel : bool, optional
         Use parallel download (unused), by default True.
     """
-    if ((DATADIR / filename(dtm)).is_file() and not force):
+    if ((datadir() / filename(dtm)).is_file() and not force):
         return
     elif force:
-        (DATADIR / filename(dtm)).unlink(missing_ok=True)
+        (datadir() / filename(dtm)).unlink(missing_ok=True)
     dtm = pd.to_datetime(dtm)
     vprint(f"Date: {dtm.date()} \nCollection: Sea Surface Height")
 
@@ -141,5 +145,5 @@ def retrieve(dtm="2025-06-03", force=False, parallel=True):
         #minimum_depth=0,
         #maximum_depth=30,
         output_filename = filename(dtm),
-        output_directory = DATADIR
+        output_directory = datadir()
     )

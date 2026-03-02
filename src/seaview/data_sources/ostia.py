@@ -25,9 +25,11 @@ from seaview.area_definitions import rectlinear as rectlin_area
 from seaview import config
 settings = config.settings
 
-DATADIR = pathlib.Path(settings["data_dir"] + "/copernicus/OSTIA")
-DATADIR.mkdir(parents=True, exist_ok=True)
 
+def datadir(dtm=None):
+    path = pathlib.Path(settings.data_dir) / "copernicus/OSTIA"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
 
 def filename(dtm="2025-06-03"):
     """Generate filename for OSTIA data file.
@@ -63,7 +65,7 @@ def open_dataset(dtm="2025-06-03", _pause=0, _retry=0, force=False):
     xarray.Dataset
         Dataset containing SST variables.
     """
-    fn = DATADIR / filename(dtm=dtm)
+    fn = datadir() / filename(dtm=dtm)
     if force or not fn.is_file():
         retrieve(dtm=dtm, force=force)
     if _retry > 3:
@@ -97,7 +99,7 @@ def open_scene(dtm="2025-06-03", data_var="sla"):
     satpy.Scene
         Satpy Scene object with loaded variables.
     """
-    fn = DATADIR / filename(dtm=dtm)
+    fn = datadir() / filename(dtm=dtm)
     vprint(fn)
     if not fn.is_file():
         retrieve(dtm=dtm)
@@ -118,10 +120,10 @@ def retrieve(dtm="2025-06-03", force=False, parallel=True):
     parallel : bool, optional
         Use parallel download (unused), by default True.
     """
-    if ((DATADIR / filename(dtm)).is_file() and not force):
+    if ((datadir() / filename(dtm)).is_file() and not force):
         return
     elif force:
-        (DATADIR / filename(dtm)).unlink(missing_ok=True)
+        (datadir() / filename(dtm)).unlink(missing_ok=True)
     dtm = pd.to_datetime(dtm, utc=True)
     vprint(f"Date: {dtm.date()} \nCollection: Sea Surface Temperature")
 
@@ -146,5 +148,5 @@ def retrieve(dtm="2025-06-03", force=False, parallel=True):
         #minimum_depth=0,
         #maximum_depth=30,
         output_filename = filename(dtm),
-        output_directory = DATADIR
+        output_directory = datadir()
     )
