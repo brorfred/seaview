@@ -19,9 +19,10 @@ def update(
 ):
     """Update tiles with yesterday's and today's fields."""
 
-    if env.lower() != "default":
+    if "default" not in env.lower():
         seaview.config.change_env(env)
         typer.echo(f"Using environment: {env}")
+    print(seaview.settings["cruise_name"])
     seaview.today(force=False, sync=sync)
     seaview.yesterday(force=True, sync=sync)
 

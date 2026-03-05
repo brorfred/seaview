@@ -112,9 +112,9 @@ def ssh(dtm, verbose=True, force=True):
                              ds.longitude.data,
                              tile_base,
                              settings["zoom_levels"],
-                             cmap="RdBu",
-                             vmin=-0.75,
-                             vmax=0.75)
+                             cmap=settings["ssh"]["cmap"],
+                             vmin=settings["ssh"]["vmin"],
+                             vmax=settings["ssh"]["vmax"])
     settings.set("tiles_updated", True)
 
 
@@ -173,9 +173,9 @@ def ostia(dtm, verbose=True, force=True):
                              ds.longitude.data,
                              tile_base,
                              settings["zoom_levels"],
-                             cmap="viridis",
-                             vmin=10,
-                             vmax=28)
+                             cmap=settings["ostia"]["cmap"],
+                             vmin=settings["ostia"]["vmin"],
+                             vmax=settings["ostia"]["vmax"])
     settings.set("tiles_updated", True)
 
 
@@ -261,7 +261,7 @@ def sync(dtm=None):
             sysrsync.run(source=local,
                         destination=remote,
                         destination_ssh='tvarminne',
-                        options=['-a'],
+                        options=['--mkpath', '-a'],
                         sync_source_contents=True,
                         strict=True,
                         private_key=key

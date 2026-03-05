@@ -20,6 +20,7 @@ from PIL import Image
 import mercantile
 import io
 from pyproj import Transformer
+from tqdm import tqdm
 
 from .utils import filter_small_contours
 from ..utils import vprint
@@ -108,7 +109,7 @@ class SlippyTileGenerator:
     def generate_tiles(self, scene_data: np.ndarray, scene_lats: np.ndarray,
                        scene_lons: np.ndarray, output_dir: str, zoom_levels: List[int],
                        num_workers: int = 10, cmap: str = 'RdBu',
-                       levels: int = 20, vmin: Optional[float] = None,
+                       levels: int = 20, vmin: float | None = None,
                        vmax: Optional[float] = None,
                        add_contour_lines: bool = False, contour_levels: int = 5):
         """Generate tiles for multiple zoom levels in parallel.
@@ -187,8 +188,8 @@ class SlippyTileGenerator:
         vprint(f"Processing {len(data_flat)} valid data points")
         vprint(f"Data range: {vmin:.4f} to {vmax:.4f}")
 
-        for zoom in zoom_levels:
-            vprint(f"\nGenerating tiles for zoom level {zoom}")
+        for zoom in tqdm(zoom_levels, desc="Zoom", leave=False):
+            #vprint(f"\nGenerating tiles for zoom level -- {zoom}")
 
             # Get all tiles using mercantile
             tiles = self.get_tiles_for_bounds(zoom)
@@ -202,7 +203,7 @@ class SlippyTileGenerator:
             for x in unique_x:
                 (zoom_dir / str(x)).mkdir(exist_ok=True)
 
-            vprint(f"Total tiles to generate: {len(tiles)}")
+            #vprint(f"Total tiles to generate: {len(tiles)}")
 
             # Process tiles in parallel
             with ProcessPoolExecutor(max_workers=num_workers) as executor:
@@ -217,10 +218,10 @@ class SlippyTileGenerator:
                 }
 
                 completed = 0
-                for future in as_completed(futures):
+                for future in tqdm(as_completed(futures), total=len(futures), desc="Tiles", leave=False):
                     completed += 1
-                    if completed % 100 == 0 or completed == len(tiles):
-                        vprint(f"Progress: {completed}/{len(tiles)} tiles", level=1)
+                    #if completed % 100 == 0 or completed == len(tiles):
+                    #    vprint(f"Progress: {completed}/{len(tiles)} tiles", level=10)
 
                     try:
                         future.result()
@@ -228,7 +229,7 @@ class SlippyTileGenerator:
                         x, y = futures[future]
                         print(f"Error generating tile {zoom}/{x}/{y}: {e}")
 
-            vprint(f"Completed zoom level {zoom}")
+            #vprint(f"Completed zoom level {zoom}")
 
 
 def _generate_single_tile(
@@ -373,26 +374,17 @@ def _generate_single_tile(
     buf.close()
 
 
-def cruise_tiles(da, tile_base, cmap="viridis", levels=None, vmin=None, vmax=None, verbose=True):
+def cruise_tiles(da, field_name, verbose=True):
     """Generate slippy map tiles from an xarray DataArray.
 
     Parameters
     ----------
     da : xarray.DataArray
         DataArray with latitude and longitude coordinates.
-    tile_base : str
-        Base output directory for generated tiles.
-    cmap : str, optional
-        Matplotlib colormap name, by default "viridis".
-    levels : int or list, optional
-        Number of contour levels or list of level values. If None, auto-calculated.
-    vmin : float, optional
-        Minimum value for colormap. If None, auto-calculated from data.
-    vmax : float, optional
-        Maximum value for colormap. If None, auto-calculated from data.
     verbose : bool, optional
         Whether to print progress messages, by default True.
     """
+    dtm = pd.to_datetime(da.time.item())
     settings.set("verbose", verbose)
     generator = SlippyTileGenerator(
         min_lat=float(da.latitude.min()),
@@ -400,14 +392,13 @@ def cruise_tiles(da, tile_base, cmap="viridis", levels=None, vmin=None, vmax=Non
         min_lon=float(da.longitude.min()),
         max_lon=float(da.longitude.max())
     )
-    generator.generate_tiles(
-        np.squeeze(da.data),
-        da.latitude.data,
-        da.longitude.data,
-        tile_base,
-        settings.get("zoom_levels", [3, 4, 5, 6, 7]),
-        cmap=cmap,
-        levels=levels,
-        vmin=vmin,
-        vmax=vmax
-    )
+    tile_base = pathlib.Path(settings["tile_dir"]) / field_name / str(dtm.date())
+    generator.generate_tiles(np.squeeze(da.data),
+                             da.latitude.data,
+                             da.longitude.data,
+                             tile_base,
+                             settings["zoom_levels"],
+                             cmap=settings["ssh"]["cmap"],
+                             vmin=settings["ssh"]["vmin"],
+                             vmax=settings["ssh"]["vmax"])
+    settings.set("tiles_updated", True)

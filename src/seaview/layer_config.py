@@ -24,8 +24,8 @@ def sync():
     """
     print("Sync layer_config file")
     tmp_dir = pathlib.Path("/tmp")
-    generate_file(config_file_path=tmp_dir)
-    update(json_file_path=tmp_dir / "layer_config.json")
+    generate_file(json_file_path=tmp_dir)
+    update(json_file_path=tmp_dir)
     key = pathlib.Path.cwd() / "sea_id_ed25519"
     if not key.is_file():
         key  = pathlib.Path.home() / ".ssh/sea_id_ed25519"
@@ -76,7 +76,7 @@ def find_first_last_tile_dates():
     return layer_dates
 
 
-def update(json_file_path="layer_config.json"):
+def update(json_file_path="./"):
     """Update layer configuration file with current tile date ranges.
 
     Parameters
@@ -84,17 +84,18 @@ def update(json_file_path="layer_config.json"):
     json_file_path : str or pathlib.Path, optional
         Path to the JSON configuration file, by default "layer_config.json".
     """
+    json_file = pathlib.Path(json_file_path) / "layer_config.json"
     layer_dates = find_first_last_tile_dates()
     vprint(layer_dates)
-    update_date_ranges(json_file_path=json_file_path, layer_dates=layer_dates)
+    update_date_ranges(json_file=json_file, layer_dates=layer_dates)
 
 
-def update_date_ranges(json_file_path, layer_dates=None, output_file_path=None):
+def update_date_ranges(json_file, layer_dates=None, output_file=None):
     """Update start and end dates for each layer in a JSON configuration file.
 
     Parameters
     ----------
-    json_file_path : str or pathlib.Path
+    json_file : str or pathlib.Path
         Path to the input JSON file.
     layer_dates : dict, optional
         Dictionary mapping layer IDs to their new date ranges.
@@ -120,7 +121,7 @@ def update_date_ranges(json_file_path, layer_dates=None, output_file_path=None):
     """
 
     # Read the JSON file
-    with open(json_file_path, 'r') as f:
+    with open(json_file, 'r') as f:
         data = json.load(f)
 
     # Update each layer's date_range based on layer_dates
@@ -146,12 +147,12 @@ def update_date_ranges(json_file_path, layer_dates=None, output_file_path=None):
                     layer['date_range']['end'] = end_date.strftime('%Y-%m-%d')
 
     # Save the updated JSON
-    output_path = output_file_path or json_file_path
+    output_path = output_file or json_file
     vprint(output_path)
     with open(output_path, 'w') as f:
         json.dump(data, f, indent=2)
 
-def generate_file(remote_tile_url=None, config_file_path="./"):
+def generate_file(json_file_path="./", remote_tile_url=None):
     """Generate a JSON configuration file for map layers.
 
     Creates a layer_config.json file with definitions for all available
@@ -173,18 +174,27 @@ def generate_file(remote_tile_url=None, config_file_path="./"):
             "name": "SSH CMEMS 0.125°  ",
             "url_path": "ssh",
             "attribution": "Copernicus 1/125° SSH -0.75–0.75 m",
+            "vmin": settings["ssh"]["vmin"],
+            "vmax": settings["ssh"]["vmax"],
+            "cmap": settings["ssh"]["cmap"],
         },
         {
             "id": "ostia",
             "name": "SST OSTIA 5km     ",
             "url_path": "ostia",
             "attribution": "OSTIA 2km SST 10–28°C",
+            "vmin": settings["ostia"]["vmin"],
+            "vmax": settings["ostia"]["vmax"],
+            "cmap": settings["ostia"]["cmap"],
         },
         {
             "id": "globcolour",
             "name": "Chl GlobColour 4km",
             "url_path": "globcolour",
             "attribution": "Globcolour 4km Chl 0.01-100 mg/m3",
+            "vmin": settings["globcolour"]["vmin"],
+            "vmax": settings["globcolour"]["vmax"],
+            "cmap": settings["globcolour"]["cmap"],
         },
     ]
 
@@ -206,6 +216,9 @@ def generate_file(remote_tile_url=None, config_file_path="./"):
             "name": layer["name"],
             "url_template": f"{{base_url}}/{layer['url_path']}/{{date}}/{{z}}/{{x}}/{{y}}.png",
             "attribution": layer["attribution"],
+            "vmin": layer["vmin"],
+            "vmax": layer["vmax"],
+            "cmap": layer["cmap"],
             **common_settings
         }
         layers.append(layer_obj)
@@ -226,6 +239,6 @@ def generate_file(remote_tile_url=None, config_file_path="./"):
     )
 
     # Write to file
-    output_path = pathlib.Path(config_file_path) / "layer_config.json"
+    output_path = pathlib.Path(json_file_path) / "layer_config.json"
     with open(output_path, "w") as fp:
         fp.write(rendered)

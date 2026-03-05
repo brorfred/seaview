@@ -24,6 +24,8 @@ settings : Dynaconf
 """
 import os
 import pathlib
+import logging
+#import auxiliary_module
 
 from dynaconf import Dynaconf
 
@@ -44,7 +46,7 @@ if extra_file:
     settings_files.append(pathlib.Path(extra_file).absolute())
 
 settings = Dynaconf(
-    merge_enabled = True,
+    merge_enabled = False,
     envvar_prefix="SEAVIEW",
     DEBUG_LEVEL_FOR_DYNACONF='DEBUG',
     settings_files=settings_files,
@@ -71,3 +73,14 @@ def change_env(new_env):
 
 #print("Loaded files:", settings.loaded_files)
 #print("\nSettings:", dict(settings))
+
+def config_log():
+    logpath = pathlib.Path.home() / ".local/state/seaview/"
+    logpath.mkdir(parents=True, exist_ok=True)
+    logger = logging.getLogger("seaview")
+    logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+
+    logging.getLogger('copernicusmarine').setLevel("WARNING")
+    logging.getLogger('copernicusmarine').handlers.clear()
+    logging.getLogger('copernicusmarine_blank_logger').handlers.clear()
+    logging.getLogger('copernicusmarine').addHandler(logging.NullHandler())
