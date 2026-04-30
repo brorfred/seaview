@@ -72,8 +72,28 @@ podman run --rm -it \
     seaview pixi run ipython
 ```
 
-The container uses pixi for dependency management and includes all required geospatial libraries.
+#### Save the container to a local file
+```bash
 
+# Commit the running container to an image                                  
+podman commit seaview seaview:tag                             
+                                                                              
+# Save the image to a tar file                                                
+podman save -o my-seaview.tar seaview:tag                                    
+                                                                                
+# Load it later
+podman load -i seaview.tar
+```
+This approach preserves image layers, history, entrypoint, env vars, etc. Use if you want a full image.  
+
+#### Export the container to a local file
+```bash
+podman export seaview -o seaview.tar                      
+
+# Later import the container as an image
+podman import seaview.tar seaview:tag
+```
+This is a flat filesystem snapshot with no metadata included. The result is a smaller file any image config is lost.                                             
 **Note:** Replace `podman` with `docker` if using Docker instead.
 
 ### Prerequisites
