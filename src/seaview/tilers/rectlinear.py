@@ -355,7 +355,8 @@ def _generate_single_tile(
             filter_small_contours(cs, 100)
             ax.clabel(cs, inline=True, fontsize=8, fmt='%.1f')
 
-    except Exception:
+    except Exception as e:
+        print(f"Error generating tile {zoom}/{tile_x}/{tile_y}: {e}")
         plt.close(fig)
         img = Image.new('RGBA', (TILE_SIZE, TILE_SIZE), (0, 0, 0, 0))
         img.save(tile_path)
