@@ -4,7 +4,7 @@ All notable changes to this project are documented in this file. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the
 project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.6.0] - 2026-10-31
 
 ### Added
 
@@ -17,6 +17,7 @@ project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   z/x/y tree of PNG files. Existing tiles must be regenerated, and the web
   client and `layer_config.json` must be deployed together with them.
 - The tile server must support HTTP range requests.
+- Default zoom levels limited to z10, the maximum zoom of the web map.
 
 ### Fixed
 
@@ -65,6 +66,6 @@ First tagged release, covering all development to date.
 - Renamed the package from `seastate` to `seaview`.
 - Colormaps are resolved through the `cmap` package.
 
-[Unreleased]: https://github.com/brorfred/seaview/compare/v0.5.1...HEAD
+[0.6.0]: https://github.com/brorfred/seaview/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/brorfred/seaview/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/brorfred/seaview/releases/tag/v0.5.0
