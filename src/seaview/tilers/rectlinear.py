@@ -177,6 +177,11 @@ class SlippyTileGenerator:
         if vmax is None:
             vmax = float(np.nanmax(data_work))
 
+        # Largest grid step in Web Mercator meters, used for the tile buffer
+        grid_x, grid_y = lonlat_to_webmercator(lon_grid, lat_grid)
+        grid_spacing = float(max(np.nanmax(np.abs(np.diff(grid_x, axis=1))),
+                                 np.nanmax(np.abs(np.diff(grid_y, axis=0)))))
+
         # Flatten arrays for triangulation using the 2D grids
         lats_flat = lat_grid[valid_mask].astype(np.float32)
         lons_flat = lon_grid[valid_mask].astype(np.float32)
@@ -214,7 +219,7 @@ class SlippyTileGenerator:
                         tile.z, tile.x, tile.y,
                         x_wm, y_wm, data_flat,
                         str(output_path), cmap, levels, vmin, vmax,
-                        add_contour_lines, contour_levels
+                        add_contour_lines, contour_levels, grid_spacing
                     ): (tile.x, tile.y) for tile in tiles
                 }
 
@@ -233,12 +238,20 @@ class SlippyTileGenerator:
             #vprint(f"Completed zoom level {zoom}")
 
 
+def _save_tile(img, tile_path):
+    """Write a tile atomically so an interrupted run leaves no partial file."""
+    tmp_path = tile_path.with_suffix(".png.tmp")
+    img.save(tmp_path, format="PNG")
+    tmp_path.replace(tile_path)
+
+
 def _generate_single_tile(
     zoom: int, tile_x: int, tile_y: int,
     x_coords: np.ndarray, y_coords: np.ndarray, data: np.ndarray,
     output_dir: str, cmap: str, levels: int,
     vmin: float, vmax: float,
-    add_contour_lines: bool, contour_levels: int
+    add_contour_lines: bool, contour_levels: int,
+    grid_spacing: float = 0.0
 ):
     """Generate a single tile using Web Mercator coordinates.
 
@@ -270,6 +283,9 @@ def _generate_single_tile(
         Whether to add contour lines on top of filled contours.
     contour_levels : int
         Number of contour line levels.
+    grid_spacing : float, optional
+        Largest source grid step in Web Mercator meters. Keeps the tile
+        buffer wide enough to reach neighboring grid points at high zooms.
     """
     TILE_SIZE = 256
     tile_path = Path(output_dir) / str(zoom) / str(tile_x) / f"{tile_y}.png"
@@ -279,11 +295,11 @@ def _generate_single_tile(
     x_left, x_right = xy_bounds.left, xy_bounds.right
     y_bottom, y_top = xy_bounds.bottom, xy_bounds.top
 
-    # Buffer for edge interpolation (15% of tile size)
+    # Buffer for edge interpolation (15% of tile size, at least 2 grid steps)
     tile_height = y_top - y_bottom
     tile_width = x_right - x_left
-    buffer_y = tile_height * 0.15
-    buffer_x = tile_width * 0.15
+    buffer_y = max(tile_height * 0.15, 2 * grid_spacing)
+    buffer_x = max(tile_width * 0.15, 2 * grid_spacing)
 
     buffered_left = x_left - buffer_x
     buffered_right = x_right + buffer_x
@@ -298,16 +314,19 @@ def _generate_single_tile(
 
     if not np.any(mask):
         img = Image.new('RGBA', (TILE_SIZE, TILE_SIZE), (0, 0, 0, 0))
-        img.save(tile_path)
+        _save_tile(img, tile_path)
         return
 
     tile_x_coords = x_coords[mask]
     tile_y_coords = y_coords[mask]
     tile_data = data[mask]
 
-    if len(tile_data) < 3:
+    # Points on a single line, e.g. one grid column next to land, have no area
+    offsets = np.column_stack((tile_x_coords - tile_x_coords[0],
+                               tile_y_coords - tile_y_coords[0]))
+    if len(tile_data) < 3 or np.linalg.matrix_rank(offsets) < 2:
         img = Image.new('RGBA', (TILE_SIZE, TILE_SIZE), (0, 0, 0, 0))
-        img.save(tile_path)
+        _save_tile(img, tile_path)
         return
 
     # Subsample if too many points to prevent OOM in triangulation
@@ -359,7 +378,7 @@ def _generate_single_tile(
         print(f"Error generating tile {zoom}/{tile_x}/{tile_y}: {e}")
         plt.close(fig)
         img = Image.new('RGBA', (TILE_SIZE, TILE_SIZE), (0, 0, 0, 0))
-        img.save(tile_path)
+        _save_tile(img, tile_path)
         return
 
     plt.subplots_adjust(left=0, right=1, top=1, bottom=0, wspace=0, hspace=0)
@@ -373,7 +392,7 @@ def _generate_single_tile(
     buf.seek(0)
     img = Image.open(buf)
     img = img.resize((TILE_SIZE, TILE_SIZE), Image.LANCZOS)
-    img.save(tile_path)
+    _save_tile(img, tile_path)
     buf.close()
 
 

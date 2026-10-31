@@ -5,12 +5,19 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
+import mercantile
 import numpy as np
 import pytest
+from PIL import Image
 
 from seaview import config
 from seaview import area_definitions
-from seaview.tilers.rectlinear import SlippyTileGenerator
+from seaview.tilers.rectlinear import (
+    SlippyTileGenerator,
+    _generate_single_tile,
+    _save_tile,
+    lonlat_to_webmercator,
+)
 
 
 class TestConfig:
@@ -365,55 +372,73 @@ class TestSlippyTileGenerator:
 
 
 class TestGenerateSingleTile:
-    """Tests for the static _generate_single_tile method."""
+    """Tests for the module-level _generate_single_tile function."""
+
+    @staticmethod
+    def _render(tmpdir, zoom, tile_x, tile_y, lons, lats, data, **kwargs):
+        """Render one tile from lon/lat points and return its RGBA pixels."""
+        x_coords, y_coords = lonlat_to_webmercator(lons, lats)
+        tile_dir = Path(tmpdir) / str(zoom) / str(tile_x)
+        tile_dir.mkdir(parents=True)
+        _generate_single_tile(
+            zoom, tile_x, tile_y, x_coords, y_coords, data, tmpdir,
+            "viridis", 10, -1, 1, False, 5, **kwargs
+        )
+        return np.array(Image.open(tile_dir / f"{tile_y}.png").convert("RGBA"))
 
     def test_generates_png_file(self):
         """_generate_single_tile() should create a PNG file."""
-        # Create simple test data
-        lats = np.linspace(-5, 5, 100)
-        lons = np.linspace(-5, 5, 100)
-        data = np.random.randn(100)
-
+        lon_grid, lat_grid = np.meshgrid(np.linspace(-170, 170, 100),
+                                         np.linspace(-80, 80, 100))
         with tempfile.TemporaryDirectory() as tmpdir:
-            # Create directory structure
-            tile_dir = Path(tmpdir) / "0" / "0"
-            tile_dir.mkdir(parents=True)
-
-            SlippyTileGenerator._generate_single_tile(
-                zoom=0, x=0, y=0,
-                lats=lats, lons=lons, data=data,
-                output_dir=tmpdir,
-                cmap="viridis", levels=10,
-                vmin=-1, vmax=1,
-                add_contour_lines=False,
-                contour_levels=5
-            )
-
-            tile_path = tile_dir / "0.png"
-            assert tile_path.exists()
+            pixels = self._render(tmpdir, 0, 0, 0, lon_grid.ravel(),
+                                  lat_grid.ravel(), np.zeros(10000))
+            assert (pixels[..., 3] > 0).any()
+            assert not list(Path(tmpdir).rglob("*.tmp"))
 
     def test_empty_tile_for_no_data(self):
         """_generate_single_tile() should create transparent tile when no data in bounds."""
-        # Data far outside tile bounds
-        lats = np.array([80.0, 81.0, 82.0])  # Near north pole
-        lons = np.array([170.0, 171.0, 172.0])  # Far east
-        data = np.array([1.0, 2.0, 3.0])
-
         with tempfile.TemporaryDirectory() as tmpdir:
-            # Create directory structure for zoom 5, tile x=0, y=0
-            tile_dir = Path(tmpdir) / "5" / "0"
-            tile_dir.mkdir(parents=True)
+            # Tile 5/0/0 is in the northwest corner, far from this data
+            pixels = self._render(tmpdir, 5, 0, 0,
+                                  np.array([170.0, 171.0, 172.0]),
+                                  np.array([80.0, 81.0, 82.0]),
+                                  np.array([1.0, 2.0, 3.0]))
+            assert (pixels[..., 3] == 0).all()
 
-            # Tile 5/0/0 is in the northwest corner, far from our data
-            SlippyTileGenerator._generate_single_tile(
-                zoom=5, x=0, y=0,
-                lats=lats, lons=lons, data=data,
-                output_dir=tmpdir,
-                cmap="viridis", levels=10,
-                vmin=0, vmax=5,
-                add_contour_lines=False,
-                contour_levels=5
-            )
+    def test_coarse_grid_fills_high_zoom_tile(self):
+        """A grid coarser than the tile should still reach every tile edge."""
+        lon_grid, lat_grid = np.meshgrid(np.arange(-5, 5, 0.125),
+                                         np.arange(-5, 5, 0.125))
+        lons, lats = lon_grid.ravel(), lat_grid.ravel()
+        data = np.zeros(lons.size)
+        x_coords, y_coords = lonlat_to_webmercator(lons, lats)
+        spacing = float(np.abs(np.diff(np.unique(y_coords))).max())
+        tile = mercantile.tile(0.3, 0.3, 11)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            pixels = self._render(tmpdir, 11, tile.x, tile.y, lons, lats, data,
+                                  grid_spacing=spacing)
+            assert (pixels[..., 3] > 0).all()
 
-            tile_path = tile_dir / "0.png"
-            assert tile_path.exists()
+    def test_single_grid_column_gives_blank_tile(self, capsys):
+        """Collinear points should give a blank tile, not a qhull error."""
+        tile = mercantile.tile(0.3, 0.3, 9)
+        lats = np.linspace(0.2, 0.4, 5, dtype=np.float32)
+        lons = np.full(5, 0.3, dtype=np.float32)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            pixels = self._render(tmpdir, 9, tile.x, tile.y, lons, lats,
+                                  np.zeros(5, dtype=np.float32))
+        assert (pixels[..., 3] == 0).all()
+        assert "Error" not in capsys.readouterr().out
+
+    def test_failed_write_leaves_no_tile(self, tmp_path):
+        """An interrupted save should not leave a partial tile behind."""
+        class FailingImage:
+            def save(self, path, format=None):
+                Path(path).write_bytes(b"")
+                raise OSError("disk full")
+
+        tile_path = tmp_path / "0.png"
+        with pytest.raises(OSError):
+            _save_tile(FailingImage(), tile_path)
+        assert not tile_path.exists()
