@@ -173,7 +173,7 @@ def generate_file(json_file_path="./", remote_tile_url=None):
             "id": "ssh",
             "name": "SSH CMEMS 0.125°  ",
             "url_path": "ssh",
-            "attribution": "Copernicus 1/125° SSH -0.75–0.75 m",
+            "attribution": "Copernicus 1/8° SSH -0.75–0.75 m",
             "vmin": settings["ssh"]["vmin"],
             "vmax": settings["ssh"]["vmax"],
             "cmap": settings["ssh"]["cmap"],
