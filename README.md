@@ -381,7 +381,7 @@ Generated tiles follow the standard slippy map tile naming convention:
 
 Example:
 ```
-/data/tiles/bioreactors1/ssh/2026-01-15/5/12/18.png
+/data/tiles/bioreactors1/ssh/2026-01-15.pmtiles
 ```
 
 ### Layer Configuration

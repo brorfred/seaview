@@ -4,6 +4,24 @@ All notable changes to this project are documented in this file. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the
 project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Web client for building the cruise map, with ship track, cruise stations,
+  graticule, ruler and colorbars.
+
+### Changed
+
+- Tiles are stored as one PMTiles archive per product and day instead of a
+  z/x/y tree of PNG files. Existing tiles must be regenerated, and the web
+  client and `layer_config.json` must be deployed together with them.
+- The tile server must support HTTP range requests.
+
+### Fixed
+
+- `tile.bathy()` failed on an undefined `cmr` name.
+
 ## [0.5.1] - 2026-10-31
 
 ### Added
@@ -47,5 +65,6 @@ First tagged release, covering all development to date.
 - Renamed the package from `seastate` to `seaview`.
 - Colormaps are resolved through the `cmap` package.
 
-[0.5.1]: https://github.com/brorfred/seastate/compare/v0.5.0...v0.5.1
-[0.5.0]: https://github.com/brorfred/seastate/releases/tag/v0.5.0
+[Unreleased]: https://github.com/brorfred/seaview/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/brorfred/seaview/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/brorfred/seaview/releases/tag/v0.5.0

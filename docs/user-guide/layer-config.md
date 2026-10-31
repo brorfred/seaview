@@ -74,7 +74,7 @@ This will:
     {
       "id": "ssh",
       "name": "SSH CMEMS 0.125°",
-      "url_template": "{base_url}/ssh/{date}/{z}/{x}/{y}.png",
+      "url_template": "{base_url}/ssh/{date}.pmtiles",
       "attribution": "Copernicus 1/8° SSH -0.75–0.75 m",
       "date_range": {
         "start": "2026-01-01",
@@ -86,7 +86,7 @@ This will:
     {
       "id": "ostia",
       "name": "SST OSTIA 5km",
-      "url_template": "{base_url}/ostia/{date}/{z}/{x}/{y}.png",
+      "url_template": "{base_url}/ostia/{date}.pmtiles",
       "attribution": "OSTIA 2km SST 10–28°C",
       "date_range": {
         "start": "2026-01-01",
@@ -98,7 +98,7 @@ This will:
     {
       "id": "globcolour",
       "name": "Chl GlobColour 4km",
-      "url_template": "{base_url}/globcolour/{date}/{z}/{x}/{y}.png",
+      "url_template": "{base_url}/globcolour/{date}.pmtiles",
       "attribution": "Globcolour 4km Chl 0.01-100 mg/m3",
       "date_range": {
         "start": "2026-01-01",
@@ -119,7 +119,7 @@ This will:
 |----------|------|-------------|
 | `id` | string | Unique layer identifier |
 | `name` | string | Display name |
-| `url_template` | string | Tile URL template with placeholders |
+| `url_template` | string | PMTiles archive URL template with placeholders |
 | `attribution` | string | Data source attribution |
 | `date_range.start` | string | First available date (YYYY-MM-DD) |
 | `date_range.end` | string | Last available date (YYYY-MM-DD) |
@@ -146,15 +146,13 @@ fetch('layer_config.json')
   .then(response => response.json())
   .then(config => {
     config.layers.forEach(layer => {
-      const tileLayer = L.tileLayer(
-        layer.url_template
-          .replace('{base_url}', config.base_url)
-          .replace('{date}', selectedDate),
-        {
-          attribution: layer.attribution,
-          opacity: 0.7
-        }
-      );
+      const url = layer.url_template
+        .replace('{base_url}', config.base_url)
+        .replace('{date}', selectedDate);
+      const tileLayer = pmtiles.leafletRasterLayer(new pmtiles.PMTiles(url), {
+        attribution: layer.attribution,
+        opacity: 0.7
+      });
       layerControl.addOverlay(tileLayer, layer.name);
     });
   });

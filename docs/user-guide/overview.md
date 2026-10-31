@@ -100,15 +100,15 @@ The `area_definitions` module provides utilities for creating area definitions i
 
 ## Tile Naming Convention
 
-Tiles follow the standard XYZ/TMS convention:
+Each product and day is one PMTiles archive holding standard XYZ tiles:
 
 ```
-{layer}/{date}/{z}/{x}/{y}.png
+{layer}/{date}.pmtiles
 ```
 
 Where:
 - `layer`: Product name (ssh, ostia, globcolour)
 - `date`: ISO date (YYYY-MM-DD)
-- `z`: Zoom level (0-8 typically)
+- Tiles inside an archive are addressed by `z`, `x` and `y` (zoom 0-8 typically)
 - `x`: Tile column
 - `y`: Tile row
