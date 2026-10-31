@@ -117,25 +117,17 @@ layer_config.sync()
 
 ## Output Structure
 
-Generated tiles follow the slippy map tile structure:
+Each product and day is one PMTiles archive:
 
 ```
 tiles/
 ├── ssh/
-│   └── 2026-01-15/
-│       ├── 0/
-│       │   └── 0/
-│       │       └── 0.png
-│       ├── 1/
-│       │   ├── 0/
-│       │   └── 1/
-│       └── ...
+│   └── 2026-01-15.pmtiles
 ├── ostia/
-│   └── 2026-01-15/
-│       └── ...
-└── globcolour/
-    └── 2026-01-15/
-        └── ...
+│   └── 2026-01-15.pmtiles
+├── globcolour/
+│   └── 2026-01-15.pmtiles
+└── gebco.pmtiles
 ```
 
 ## Next Steps

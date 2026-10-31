@@ -9,6 +9,7 @@ import mercantile
 import numpy as np
 import pytest
 from PIL import Image
+from pmtiles.reader import MmapSource, Reader
 
 from seaview import config
 from seaview import area_definitions
@@ -369,6 +370,25 @@ class TestSlippyTileGenerator:
     def test_tile_size_constant(self):
         """TILE_SIZE should be 256 (standard slippy map tile size)."""
         assert SlippyTileGenerator.TILE_SIZE == 256
+
+
+class TestGenerateArchive:
+    """Tests for the generate_archive method."""
+
+    def test_writes_archive_and_no_tile_tree(self, tmp_path):
+        """generate_archive() should leave only the PMTiles archive."""
+        lats = np.linspace(-5, 5, 50)
+        lons = np.linspace(-5, 5, 50)
+        data = np.random.randn(50, 50)
+        gen = SlippyTileGenerator(min_lat=-5, max_lat=5, min_lon=-5, max_lon=5)
+        archive = tmp_path / "ssh" / "2025-01-15.pmtiles"
+
+        gen.generate_archive(data, lats, lons, archive, [0, 1], num_workers=1)
+
+        assert [p for p in tmp_path.rglob("*") if p.is_file()] == [archive]
+        with open(archive, "rb") as f:
+            reader = Reader(MmapSource(f))
+            assert reader.get(0, 0, 0).startswith(b"\x89PNG")
 
 
 class TestGenerateSingleTile:

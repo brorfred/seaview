@@ -205,9 +205,16 @@ Tiles are saved as PNG files with transparency:
 - Color: RGBA
 - Compression: Default PNG compression
 
+Tiles are rendered to a temporary directory and packed into one
+[PMTiles](https://docs.protomaps.com/pmtiles/) archive per product and day.
+Bathymetry goes to a single `{tile_dir}/gebco.pmtiles`.
+
 ```
-{tile_dir}/{product}/{date}/{z}/{x}/{y}.png
+{tile_dir}/{product}/{date}.pmtiles
 ```
+
+The web map reads tiles from an archive with HTTP range requests, so the
+server must support them. Most static file servers do, without configuration.
 
 ## Parallel Processing
 

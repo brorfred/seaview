@@ -66,7 +66,7 @@ def sample_layer_config():
             {
                 "id": "ssh",
                 "name": "Sea Surface Height",
-                "url_template": "{base_url}/ssh/{date}/{z}/{x}/{y}.png",
+                "url_template": "{base_url}/ssh/{date}.pmtiles",
                 "attribution": "Copernicus Marine",
                 "date_range": {
                     "start": "2025-01-01",
@@ -78,7 +78,7 @@ def sample_layer_config():
             {
                 "id": "ostia",
                 "name": "Sea Surface Temperature",
-                "url_template": "{base_url}/ostia/{date}/{z}/{x}/{y}.png",
+                "url_template": "{base_url}/ostia/{date}.pmtiles",
                 "attribution": "OSTIA",
                 "date_range": {
                     "start": "2025-01-01",

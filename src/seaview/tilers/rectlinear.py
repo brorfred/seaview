@@ -19,10 +19,12 @@ from matplotlib import tri
 from PIL import Image
 import mercantile
 import io
+import tempfile
 from pyproj import Transformer
 from tqdm import tqdm
 import cmap as cmap_extended
 
+from .archive import pack_tiles
 from .utils import filter_small_contours
 from ..utils import vprint
 from .. import config
@@ -238,6 +240,33 @@ class SlippyTileGenerator:
             #vprint(f"Completed zoom level {zoom}")
 
 
+    def generate_archive(self, scene_data: np.ndarray, scene_lats: np.ndarray,
+                         scene_lons: np.ndarray, archive_path,
+                         zoom_levels: List[int], **kwargs):
+        """Generate tiles and pack them into a PMTiles archive.
+
+        Parameters
+        ----------
+        scene_data : numpy.ndarray
+            2D array of scene values.
+        scene_lats : numpy.ndarray
+            1D or 2D array of latitudes (can be ascending or descending).
+        scene_lons : numpy.ndarray
+            1D or 2D array of longitudes (can be ascending or descending).
+        archive_path : str or pathlib.Path
+            Path of the PMTiles archive to write.
+        zoom_levels : list of int
+            Zoom levels to generate tiles for.
+        **kwargs
+            Passed on to generate_tiles.
+        """
+        with tempfile.TemporaryDirectory() as tile_dir:
+            self.generate_tiles(scene_data, scene_lats, scene_lons, tile_dir,
+                                zoom_levels, **kwargs)
+            pack_tiles(tile_dir, archive_path,
+                       (self.min_lon, self.min_lat, self.max_lon, self.max_lat))
+
+
 def _save_tile(img, tile_path):
     """Write a tile atomically so an interrupted run leaves no partial file."""
     tmp_path = tile_path.with_suffix(".png.tmp")
@@ -414,11 +443,11 @@ def cruise_tiles(da, field_name, verbose=True):
         min_lon=float(da.longitude.min()),
         max_lon=float(da.longitude.max())
     )
-    tile_base = pathlib.Path(settings["tile_dir"]) / field_name / str(dtm.date())
-    generator.generate_tiles(np.squeeze(da.data),
-                             da.latitude.data,
-                             da.longitude.data,
-                             tile_base,
+    archive_path = pathlib.Path(settings["tile_dir"]) / field_name / f"{dtm.date()}.pmtiles"
+    generator.generate_archive(np.squeeze(da.data),
+                               da.latitude.data,
+                               da.longitude.data,
+                               archive_path,
                              settings["zoom_levels"],
                              cmap=settings["ssh"]["cmap"],
                              vmin=settings["ssh"]["vmin"],
