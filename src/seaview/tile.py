@@ -6,6 +6,7 @@ Surface Temperature), and chlorophyll concentration.
 """
 import pathlib
 
+import cmasher as cmr
 import numpy as np
 import pandas as pd
 import sysrsync
@@ -33,11 +34,11 @@ def tiles_exists(id, dtm):
     Returns
     -------
     bool
-        True if the tile directory exists, False otherwise.
+        True if the tile archive exists, False otherwise.
     """
     dtm = str(pd.to_datetime(dtm).date())
-    tilepath = pathlib.Path(settings["tile_dir"]) / id / dtm
-    return tilepath.is_dir()
+    archive_path = pathlib.Path(settings["tile_dir"]) / id / f"{dtm}.pmtiles"
+    return archive_path.is_file()
 
 def bathy(dtm=None, verbose=True, force=True):
     """Generate bathymetry tiles from GEBCO data.
@@ -51,11 +52,10 @@ def bathy(dtm=None, verbose=True, force=True):
     force : bool, optional
         Force regeneration even if tiles exist, by default True.
     """
-    tile_base = pathlib.Path(settings["tile_dir"]) / "gebco"
-    if tile_base.is_dir() and not force:
+    archive_path = pathlib.Path(settings["tile_dir"]) / "gebco.pmtiles"
+    if archive_path.is_file() and not force:
         return
     ds = gebco_bathy.open_dataset(dtm=dtm)
-    tile_base.mkdir(parents=True, exist_ok=True)
 
     settings.set("verbose", verbose)
     generator = rectlin_tiler.SlippyTileGenerator(
@@ -64,17 +64,17 @@ def bathy(dtm=None, verbose=True, force=True):
         min_lon=float(ds.longitude.min()),
         max_lon=float(ds.longitude.max())
     )
-    generator.generate_tiles(np.squeeze(ds["elevation"].data),
-                             ds.latitude.data,
-                             ds.longitude.data,
-                             tile_base,
-                             settings["zoom_levels"],
-                             cmap=cmr.ocean,
-                             levels=np.arange(-6000,100,100),
-                             vmin=-6000,
-                             vmax=0,
-                             add_contour_lines=True,
-                             contour_levels=np.arange(-6000,0,500))
+    generator.generate_archive(np.squeeze(ds["elevation"].data),
+                               ds.latitude.data,
+                               ds.longitude.data,
+                               archive_path,
+                               settings["zoom_levels"],
+                               cmap=cmr.ocean,
+                               levels=np.arange(-6000,100,100),
+                               vmin=-6000,
+                               vmax=0,
+                               add_contour_lines=True,
+                               contour_levels=np.arange(-6000,0,500))
     settings.set("tiles_updated", True)
 
 def ssh(dtm, verbose=True, force=True):
@@ -98,8 +98,7 @@ def ssh(dtm, verbose=True, force=True):
     except CoordinatesOutOfDatasetBounds:
         print(f"  {dtm.date()} failed for SSH")
         return
-    tile_base = pathlib.Path(settings["tile_dir"]) / "ssh" / str(dtm.date())
-    tile_base.mkdir(parents=True, exist_ok=True)
+    archive_path = pathlib.Path(settings["tile_dir"]) / "ssh" / f"{dtm.date()}.pmtiles"
 
     generator = rectlin_tiler.SlippyTileGenerator(
         min_lat=float(ds.latitude.min()),
@@ -107,14 +106,14 @@ def ssh(dtm, verbose=True, force=True):
         min_lon=float(ds.longitude.min()),
         max_lon=float(ds.longitude.max())
     )
-    generator.generate_tiles(np.squeeze(ds.sla.data),
-                             ds.latitude.data,
-                             ds.longitude.data,
-                             tile_base,
-                             settings["zoom_levels"],
-                             cmap=settings["ssh"]["cmap"],
-                             vmin=settings["ssh"]["vmin"],
-                             vmax=settings["ssh"]["vmax"])
+    generator.generate_archive(np.squeeze(ds.sla.data),
+                               ds.latitude.data,
+                               ds.longitude.data,
+                               archive_path,
+                               settings["zoom_levels"],
+                               cmap=settings["ssh"]["cmap"],
+                               vmin=settings["ssh"]["vmin"],
+                               vmax=settings["ssh"]["vmax"])
     settings.set("tiles_updated", True)
 
 
@@ -159,8 +158,7 @@ def ostia(dtm, verbose=True, force=True):
     except CoordinatesOutOfDatasetBounds:
         print(f"  {dtm.date()} failed for SST")
         return
-    tile_base = pathlib.Path(settings["tile_dir"]) / "ostia" / str(dtm.date())
-    tile_base.mkdir(parents=True, exist_ok=True)
+    archive_path = pathlib.Path(settings["tile_dir"]) / "ostia" / f"{dtm.date()}.pmtiles"
 
     generator = rectlin_tiler.SlippyTileGenerator(
         min_lat=float(ds.latitude.min()),
@@ -168,14 +166,14 @@ def ostia(dtm, verbose=True, force=True):
         min_lon=float(ds.longitude.min()),
         max_lon=float(ds.longitude.max())
     )
-    generator.generate_tiles(np.squeeze(ds.analysed_sst.data)-273.15,
-                             ds.latitude.data,
-                             ds.longitude.data,
-                             tile_base,
-                             settings["zoom_levels"],
-                             cmap=settings["ostia"]["cmap"],
-                             vmin=settings["ostia"]["vmin"],
-                             vmax=settings["ostia"]["vmax"])
+    generator.generate_archive(np.squeeze(ds.analysed_sst.data)-273.15,
+                               ds.latitude.data,
+                               ds.longitude.data,
+                               archive_path,
+                               settings["zoom_levels"],
+                               cmap=settings["ostia"]["cmap"],
+                               vmin=settings["ostia"]["vmin"],
+                               vmax=settings["ostia"]["vmax"])
     settings.set("tiles_updated", True)
 
 
@@ -204,8 +202,7 @@ def globcolour(dtm, verbose=True, force=True):
     except CoordinatesOutOfDatasetBounds:
         print(f"  {dtm.date()} failed for globcolour")
         return
-    tile_base = pathlib.Path(settings["tile_dir"]) / "globcolour" / str(dtm.date())
-    tile_base.mkdir(parents=True, exist_ok=True)
+    archive_path = pathlib.Path(settings["tile_dir"]) / "globcolour" / f"{dtm.date()}.pmtiles"
 
     generator = rectlin_tiler.SlippyTileGenerator(
         min_lat=float(ds.latitude.min()),
@@ -213,15 +210,15 @@ def globcolour(dtm, verbose=True, force=True):
         min_lon=float(ds.longitude.min()),
         max_lon=float(ds.longitude.max())
     )
-    generator.generate_tiles(np.log(np.squeeze(ds.CHL.data)),
-                             ds.latitude.data,
-                             ds.longitude.data,
-                             tile_base,
-                             settings["zoom_levels"],
-                             cmap="nipy_spectral",
-                             vmin=-4.6,
-                             vmax=4.6,
-                             levels=50)
+    generator.generate_archive(np.log(np.squeeze(ds.CHL.data)),
+                               ds.latitude.data,
+                               ds.longitude.data,
+                               archive_path,
+                               settings["zoom_levels"],
+                               cmap="nipy_spectral",
+                               vmin=-4.6,
+                               vmax=4.6,
+                               levels=50)
     settings.set("tiles_updated", True)
 
 
@@ -256,13 +253,14 @@ def sync(dtm=None):
     Generate a key without a password using
     ssh-keygen -f /home/bror/.config/seaview/sea_id_ed25519
     """
-    def rsync(local, remote, key=None):
+    def rsync(local, remote, key=None, sync_source_contents=True):
         try:
             sysrsync.run(source=local,
                         destination=remote,
                         destination_ssh='tvarminne',
-                        options=['--mkpath', '-a'],
-                        sync_source_contents=True,
+                        options=['--mkpath', '-a', '--prune-empty-dirs',
+                                 '--exclude=*.tmp', '--exclude=*.png'],
+                        sync_source_contents=sync_source_contents,
                         strict=True,
                         private_key=key
                         )
@@ -280,13 +278,13 @@ def sync(dtm=None):
     vprint(f"key file used:{key}")
     if dtm is not None:
         dtm = pd.to_datetime(dtm)
-        local_paths = pathlib.Path(settings.get("tile_dir")).glob(f"*/{dtm.date()}")
+        local_paths = pathlib.Path(settings.get("tile_dir")).glob(f"*/{dtm.date()}.pmtiles")
 
         for local in local_paths:
             remote = pathlib.Path(settings.get("remote_tile_dir")) / "/".join(local.parts[-2:])
             vprint(f"Local path: {local}", 10)
             vprint(f"remote path: {remote}", 10)
-            rsync(str(local),str(remote), key)
+            rsync(str(local), str(remote), key, sync_source_contents=False)
         pass
     else:
         rsync(settings["tile_dir"], settings["remote_tile_dir"], key)

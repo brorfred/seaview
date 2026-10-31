@@ -67,7 +67,7 @@ def find_first_last_tile_dates():
     for layer_name in settings.get("updated_tiles"):
         layer = tilepath / layer_name
         vprint(layer, level=1)
-        date_range = pd.to_datetime([d.name for d in layer.glob("*")])
+        date_range = pd.to_datetime([d.stem for d in layer.glob("*.pmtiles")])
         vprint(date_range, level=1)
         dtm1 = date_range.min()
         dtm2 = date_range.max()
@@ -165,7 +165,7 @@ def generate_file(json_file_path="./", remote_tile_url=None):
     config_file_path : str or pathlib.Path, optional
         Directory path where the file will be saved, by default "./".
     """
-    base_url = settings.get("remote_url")+"/tiles/"+settings.get("cruise_name")
+    base_url = settings.get("remote_url").rstrip("/")+"/tiles/"+settings.get("cruise_name")
     base_url = remote_tile_url or base_url
     # Define layer configurations
     layers_config = [
@@ -214,7 +214,7 @@ def generate_file(json_file_path="./", remote_tile_url=None):
         layer_obj = {
             "id": layer["id"],
             "name": layer["name"],
-            "url_template": f"{{base_url}}/{layer['url_path']}/{{date}}/{{z}}/{{x}}/{{y}}.png",
+            "url_template": f"{{base_url}}/{layer['url_path']}/{{date}}.pmtiles",
             "attribution": layer["attribution"],
             "vmin": layer["vmin"],
             "vmax": layer["vmax"],

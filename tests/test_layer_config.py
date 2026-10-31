@@ -238,9 +238,10 @@ class TestFindFirstLastTileDates:
             # Create test tile directories
             ssh_dir = Path(tmpdir) / "ssh"
             ssh_dir.mkdir()
-            (ssh_dir / "2025-01-01").mkdir()
-            (ssh_dir / "2025-01-05").mkdir()
-            (ssh_dir / "2025-01-10").mkdir()
+            (ssh_dir / "2025-01-01.pmtiles").touch()
+            (ssh_dir / "2025-01-05.pmtiles").touch()
+            (ssh_dir / "2025-01-10.pmtiles").touch()
+            (ssh_dir / "2025-01-11.pmtiles.tmp").touch()
 
             mock_settings.__getitem__ = MagicMock(return_value=tmpdir)
             mock_settings.get = MagicMock(side_effect=lambda k: {
@@ -255,6 +256,7 @@ class TestFindFirstLastTileDates:
             assert "ssh" in result
             assert "start" in result["ssh"]
             assert "end" in result["ssh"]
+            assert result["ssh"]["end"] == pd.Timestamp("2025-01-10").date()
 
 
 class TestVprint:

@@ -16,12 +16,12 @@ class TestTilesExists:
     """Tests for the tiles_exists function."""
 
     @patch.object(tile, 'settings')
-    def test_returns_true_when_dir_exists(self, mock_settings):
-        """tiles_exists should return True when tile directory exists."""
+    def test_returns_true_when_archive_exists(self, mock_settings):
+        """tiles_exists should return True when the tile archive exists."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            # Create the tile directory
-            tile_path = Path(tmpdir) / "ssh" / "2025-01-15"
-            tile_path.mkdir(parents=True)
+            tile_path = Path(tmpdir) / "ssh" / "2025-01-15.pmtiles"
+            tile_path.parent.mkdir(parents=True)
+            tile_path.touch()
 
             mock_settings.__getitem__ = MagicMock(return_value=tmpdir)
 
@@ -29,8 +29,8 @@ class TestTilesExists:
             assert result is True
 
     @patch.object(tile, 'settings')
-    def test_returns_false_when_dir_missing(self, mock_settings):
-        """tiles_exists should return False when tile directory doesn't exist."""
+    def test_returns_false_when_archive_missing(self, mock_settings):
+        """tiles_exists should return False when the tile archive doesn't exist."""
         with tempfile.TemporaryDirectory() as tmpdir:
             mock_settings.__getitem__ = MagicMock(return_value=tmpdir)
 
@@ -41,8 +41,9 @@ class TestTilesExists:
     def test_handles_various_date_formats(self, mock_settings):
         """tiles_exists should handle various date input formats."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            tile_path = Path(tmpdir) / "ssh" / "2025-01-15"
-            tile_path.mkdir(parents=True)
+            tile_path = Path(tmpdir) / "ssh" / "2025-01-15.pmtiles"
+            tile_path.parent.mkdir(parents=True)
+            tile_path.touch()
 
             mock_settings.__getitem__ = MagicMock(return_value=tmpdir)
 
@@ -181,9 +182,7 @@ class TestBathy:
     ):
         """bathy should skip processing when tiles exist and force=False."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            # Create the tile directory
-            tile_path = Path(tmpdir) / "gebco"
-            tile_path.mkdir(parents=True)
+            (Path(tmpdir) / "gebco.pmtiles").touch()
 
             mock_settings.__getitem__ = MagicMock(return_value=tmpdir)
 
@@ -209,6 +208,28 @@ class TestAll:
 
 class TestSync:
     """Tests for the sync function."""
+
+    @patch('sysrsync.run')
+    @patch.object(tile, 'settings')
+    def test_syncs_archive_for_date(self, mock_settings, mock_rsync):
+        """sync with a date should send that day's archives as single files."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            archive = Path(tmpdir) / "ssh" / "2025-01-15.pmtiles"
+            archive.parent.mkdir()
+            archive.touch()
+            (archive.parent / "2025-01-14.pmtiles").touch()
+            mock_settings.get = MagicMock(side_effect=lambda k: {
+                "tile_dir": tmpdir,
+                "remote_tile_dir": "/remote/tiles"
+            }.get(k))
+
+            tile.sync("2025-01-15")
+
+        mock_rsync.assert_called_once()
+        call_kwargs = mock_rsync.call_args[1]
+        assert call_kwargs["source"] == str(archive)
+        assert call_kwargs["destination"] == "/remote/tiles/ssh/2025-01-15.pmtiles"
+        assert call_kwargs["sync_source_contents"] is False
 
     @patch('sysrsync.run')
     @patch.object(tile, 'settings')
