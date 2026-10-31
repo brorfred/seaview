@@ -20,7 +20,7 @@ import satpy
 import xarray as xr
 import copernicusmarine
 
-from ..utils import vprint, DataObjectError
+from ..utils import vprint
 from seaview.area_definitions import rectlinear as rectlin_area
 from seaview import config
 settings = config.settings
@@ -75,12 +75,16 @@ def open_dataset(dtm="2025-06-03", _pause=0, _retry=0, force=False):
     time.sleep(_pause)
     try:
         ds = xr.open_dataset(fn, engine="h5netcdf")
+        valid_fraction = float((~np.isnan(ds.analysed_sst)).sum()) / ds.analysed_sst.size
+        if valid_fraction < 0.01:
+            ds.close()
+            fn.unlink()
+            raise OSError(
+                f"{fn} has only {valid_fraction:.2%} valid (non-NaN) "
+                "analysed_sst coverage, treating as a bad/incomplete download."
+            )
     except (OSError,):
-        ds = open_dataset(dtm=dtm, _pause=5, _retry=_retry+1)
-    if np.nansum(ds.analysed_sst) == 0:
-        fn.unlink()
-        raise DataObjectError(f"The CHL data variable in {fn}" +
-                                  " is empty, file deleted.")
+        ds = open_dataset(dtm=dtm, _pause=5, _retry=_retry+1, force=True)
     return ds
 
 

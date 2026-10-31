@@ -94,7 +94,7 @@ def ssh(dtm, verbose=True, force=True):
     settings.set("verbose", verbose)
     dtm = pd.to_datetime(dtm, utc=True)
     try:
-        ds = cmems_ssh.open_dataset(dtm=dtm)
+        ds = cmems_ssh.open_dataset(dtm=dtm, force=force)
     except CoordinatesOutOfDatasetBounds:
         print(f"  {dtm.date()} failed for SSH")
         return
@@ -155,7 +155,7 @@ def ostia(dtm, verbose=True, force=True):
     settings.set("verbose", verbose)
     dtm = pd.to_datetime(dtm, utc=True)
     try:
-        ds = ostia_sst.open_dataset(dtm=dtm)
+        ds = ostia_sst.open_dataset(dtm=dtm, force=force)
     except CoordinatesOutOfDatasetBounds:
         print(f"  {dtm.date()} failed for SST")
         return
@@ -200,7 +200,7 @@ def globcolour(dtm, verbose=True, force=True):
     settings.set("verbose", verbose)
     dtm = pd.to_datetime(dtm, utc=True)
     try:
-        ds = cmems_globcolour.open_dataset(dtm=dtm)
+        ds = cmems_globcolour.open_dataset(dtm=dtm, force=force)
     except CoordinatesOutOfDatasetBounds:
         print(f"  {dtm.date()} failed for globcolour")
         return

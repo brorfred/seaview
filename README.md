@@ -181,6 +181,74 @@ seaview/
 └── pyproject.toml             # Python package configuration
 ```
 
+## Setup Filesystem on Server
+
+Slippy tiles are millions of small PNG/WebP files organized in z/x/y directory hierarchies, which creates specific I/O patterns. Here are some suggestions to tune EXT4 for this workload according to Claude:
+```bash
+mkfs.ext4 -b 4096 -O dir_index,extent,sparse_super2 -N 50000000  /dev/disk/by-id/scsi-0HC_Volume_105089638
+
+mount -o defaults,noatime,nodiratime,data=writeback,barrier=0,commit=60 /dev/disk/by-id/scsi-0HC_Volume_105089638 /home/bror/cruise/tiles
+
+echo "/dev/disk/by-id/scsi-0HC_Volume_105089638 /home/bror/cruise/tiles ext4 defaults,noatime,nodiratime,data=writeback,barrier=0,commit=60 0 0" >> /etc/fstab
+```
+Check with
+```bash
+sudo findmnt --verify --verbose
+```
+more detailed information:
+
+1. Format-Time Options (most impactful)
+```bash
+bashmkfs.ext4 -b 4096 \
+  -T largefile4 \          # Fewer inodes (adjust if you have billions of tiles)
+  -E stride=8,stripe-width=64 \  # Match your RAID/SSD geometry
+  -O dir_index,extent,sparse_super2 \
+  /dev/sdX
+Increase inode count if you expect hundreds of millions of tiles:
+bashmkfs.ext4 -N 50000000 /dev/sdX   # Explicitly set inode count
+```
+
+2. Mount Options (`/etc/fstab`)
+```bash
+/dev/sdX /tiles ext4 defaults,noatime,nodiratime,data=writeback,barrier=0,commit=60 0 2
+OptionReasonnoatime / nodiratimeEliminates access-time writes on every tile read — huge windata=writebackFastest journaling mode; safe with barrier=0 on UPS-backed storagebarrier=0Skips write barriers; only safe if you have battery-backed cachecommit=60Batches journal commits (default is 5s)
+```
+
+3. Tune Directory Indexing
+Tile directories hold thousands of files. Enable dir_index (HTree) if not already on:
+```bash
+bashtune2fs -O dir_index /dev/sdX
+e2fsck -D /dev/sdX   # Rebuild directory indexes
+```
+
+4. Readahead Tuning
+Tile serving is mostly random small reads, so reduce readahead to avoid wasted I/O:
+```bash
+bashblockdev --setra 256 /dev/sdX   # 128 KB (default is often 256–512 KB)
+```
+Make persistent via `/etc/udev/rules.d/60-tiles.rules`:
+```bash
+ACTION=="add", KERNEL=="sdX", ATTR{bdi/read_ahead_kb}="128"
+```
+
+5. Inode Size
+If tiles have many extended attributes (e.g., nginx caching metadata), use a larger inode:
+```bash
+bashmkfs.ext4 -I 256 /dev/sdX   # Default is 256 on modern systems; 
+```
+verify with dumpe2fs
+
+6. Directory Structure Consideration
+EXT4 handles the z/x/y.png hierarchy well, but for very deep zoom levels (z15+), consider splitting the tile store across multiple volumes by zoom level to keep directory sizes manageable.
+
+7. Scheduler (if on spinning disk)
+```bash
+bashecho mq-deadline > /sys/block/sdX/queue/scheduler
+```
+For SSDs/NVMe, none or kyber is better.
+
+
+
 ## API Reference
 
 ### tile

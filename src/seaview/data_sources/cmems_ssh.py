@@ -17,7 +17,6 @@ import satpy
 import xarray as xr
 import copernicusmarine
 
-from ..utils import vprint, DataObjectError
 from ..utils import vprint
 from ..area_definitions import rectlinear as rectlin_area
 from .. import config
@@ -73,12 +72,16 @@ def open_dataset(dtm="2025-06-03", _pause=0, _retry=0, force=False):
     time.sleep(_pause)
     try:
         ds = xr.open_dataset(fn, engine="h5netcdf")
+        valid_fraction = float((~np.isnan(ds.sla)).sum()) / ds.sla.size
+        if valid_fraction < 0.01:
+            ds.close()
+            fn.unlink()
+            raise OSError(
+                f"{fn} has only {valid_fraction:.2%} valid (non-NaN) sla "
+                "coverage, treating as a bad/incomplete download."
+            )
     except (OSError,):
-        ds = open_dataset(dtm=dtm, _pause=5, _retry=_retry+1)
-    if np.nansum(ds.sla) == 0:
-        fn.unlink()
-        raise DataObjectError(f"The CHL data variable in {fn}" +
-                               " is empty, file deleted.")
+        ds = open_dataset(dtm=dtm, _pause=5, _retry=_retry+1, force=True)
     return ds
 
 def open_scene(dtm="2025-06-03", data_var="sla"):

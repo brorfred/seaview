@@ -75,7 +75,7 @@ This will:
       "id": "ssh",
       "name": "SSH CMEMS 0.125°",
       "url_template": "{base_url}/ssh/{date}/{z}/{x}/{y}.png",
-      "attribution": "Copernicus 1/125° SSH -0.75–0.75 m",
+      "attribution": "Copernicus 1/8° SSH -0.75–0.75 m",
       "date_range": {
         "start": "2026-01-01",
         "end": "2026-01-15"
